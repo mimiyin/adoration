@@ -3,87 +3,59 @@ let socket = io("/input");
 let start = false;
 let audio;
 let sum = 0;
+let tested = false;
 
 // Listen for confirmation of connection
 socket.on("connect", () => {
   console.log("Connected");
 });
 
-// Get media streams
-if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-  console.log("getUserMedia supported.");
-  navigator.mediaDevices
-    .getUserMedia(
-      // constraints - only audio needed for this app
-      {
-        audio: true,
-        echoCancellation: true
-      }
-    )
-
-    // Success callback
-    .then(function(stream) {
-      audio = stream.getAudioTracks()[0];
-      audio.enabled = false;
-      let audioContext = new AudioContext();
-      let analyser = audioContext.createAnalyser();
-      let microphone = audioContext.createMediaStreamSource(stream);
-      let scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1);
-
-      analyser.smoothingTimeConstant = 0.3;
-      analyser.fftSize = 1024;
-
-      microphone.connect(analyser);
-      analyser.connect(scriptProcessor);
-      scriptProcessor.connect(audioContext.destination);
-
-      // Process the audio
-      scriptProcessor.onaudioprocess = function() {
-        let bins = new Uint8Array(analyser.frequencyBinCount);
-        analyser.getByteFrequencyData(bins);
-        sum = 0;
-
-        let length = bins.length;
-        // Add up amp for each frequency bin
-        for (let bin of bins) {
-          sum += bin / 256;
-        }
-        console.log("LEVEL: ", sum / bins.length);
-        socket.emit("data", sum / bins.length);
-      };
-
-      // Set-up start status
-      socket.on('start', _start =>{
-        start = _start;
-        audio.enabled = start;
-      });
-      socket.emit('get start');
-    })
-    // Error callback
-    .catch(function(err) {
-      console.log("The following getUserMedia error occured: " + err);
-    });
-} else {
-  console.log("getUserMedia not supported on your browser!");
-}
-
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  // Listen for start once the p5 sketch fires up
-  socket.on("start", _start => {
-    console.log("START?", _start);
-    start = _start;
-    audio.enabled = start;
-    background(0);
+
+  // Get the stream
+  getStream(() => {
+    socket.on('start', _start => {
+      start = _start;
+      if (tested) {
+        audio.enabled = start;
+        background(0);
+      }
+    });
   });
 
   // Styling
   noStroke();
   background(0);
+  noStroke();
+  fill(255, 128);
+  textAlign(LEFT, CENTER);
+  textSize(64);
+  text("Make some noise \nto test your mic.", width/10, height/2);
 }
 
 function draw() {
-  let sz = map(sum, 0.1, 1, 0, 5);
+  // Welcome messaging
+  if(millis() > 10000 & !tested) {
+    background(0);
+    fill(255);
+    text("Nothing happened? \nReload the page \nand try again.", width/10, height/2);
+
+  }
+  if(sum > 5000) {
+    tested = true;
+    background(0);
+    audio.enabled = start;
+  }
+  else if(sum > 2500) {
+    fill(0, 10);
+    text("Leave \nthis window open \nand return to \nthe live stream.", width/10, height/2);
+  }
+
+  let sz = 10;
+  if(tested) sz = map(sum, 0.1, 1, 0, 5);
+  else sz = map(sum, 0.1, 10, 0, 5)
+
   fill(255, 2);
   ellipse(random(width), random(height), sz, sz);
 }
