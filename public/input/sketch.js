@@ -51,6 +51,13 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         console.log("LEVEL: ", sum / bins.length);
         socket.emit("data", sum / bins.length);
       };
+
+      // Set-up start status
+      socket.on('start', _start =>{
+        start = _start;
+        audio.enabled = start;
+      });
+      socket.emit('get start');
     })
     // Error callback
     .catch(function(err) {
@@ -62,17 +69,17 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  
-  // Start
+  // Listen for start once the p5 sketch fires up
   socket.on("start", _start => {
     console.log("START?", _start);
     start = _start;
     audio.enabled = start;
     background(0);
   });
-  
+
   // Styling
   noStroke();
+  background(0);
 }
 
 function draw() {

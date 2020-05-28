@@ -21,7 +21,7 @@ let joint = "nose";
 
 // Video
 let input, output;
-let crop = {};
+let cropped = {};
 let wc = {};
 let scl = 1;
 let cw, ch;
@@ -50,6 +50,7 @@ let H2W;
 let I2O = ocs.video.width / ics.video.width;
 
 // Conducting
+let crop = false;
 let m_freeze = false;
 let a_freeze = false;
 let rate = 100;
@@ -86,8 +87,8 @@ function setup() {
 
   // Center the image
   imageMode(CENTER);
-  
-  
+
+
   // Listen for data
   socket.on("data", level => {
     let go = false;
@@ -98,24 +99,34 @@ function setup() {
     }
     if (level > 0.01 && go) update(level);
   });
-  
+
+  // Listening for instructions from conductor
+  socket.on("rate", _rate => {
+    rate = _rate;
+  });
+
+  // Sensitivity of cropping relative to amplitude
   socket.on("range", _range => {
     range = _range;
   });
-  
+
+  // To crop or not to crop
+  socket.on("crop", _crop => {
+    crop = _crop;
+  });
+
+  // Manual override to freeze
   socket.on("freeze", _m_freeze => {
     m_freeze = _m_freeze;
     if(m_freeze) a_freeze = false;
   });
-  
-  socket.on("rate", (_rate) => {
-    rate = _rate;
-  });
-  
-  socket.on("auto", _a_freeze=> {
+
+  // Auto-freeze on every crop?
+  socket.on("auto", _a_freeze => {
     a_freeze = _a_freeze;
     if(a_freeze) m_freeze = false;
   });
+
 }
 
 function modelReady() {
@@ -145,55 +156,53 @@ function resize() {
   cw = output.width * scl;
   ch = cw * H2W;
 
-  crop.w = cw;
-  crop.h = ch;
+  cropped.w = cw;
+  cropped.h = ch;
 }
 
 function update(level) {
-  if (!body) return;
+  if (body == null) return;
   // Randomize
   joint = body[random(joints)];
-  scl = map(level, 0, range, 1, 0);
+  // Constrain the level
+  level = constrain(level, 0, range);
+  scl = map(level, 0, range, 1, 0.1);
 
   // Resize crop
   resize();
 
   // Update mid-point
-  crop.x = joint.x * I2O;
-  crop.y = joint.y * I2O;
+  cropped.x = joint.x * I2O;
+  cropped.y = joint.y * I2O;
   recenter();
-  
+
   // Auto-freeze
   if(a_freeze) display();
 }
 
 function recenter() {
   // Re-center
-  let hw = crop.w / 2;
-  let hh = crop.h / 2;
-  let left = crop.x - hw;
-  let right = crop.x + hw - output.width;
-  let top = crop.y - hh;
-  let bottom = crop.y + hh - output.height;
+  let hw = cropped.w / 2;
+  let hh = cropped.h / 2;
+  let left = cropped.x - hw;
+  let right = cropped.x + hw - output.width;
+  let top = cropped.y - hh;
+  let bottom = cropped.y + hh - output.height;
 
   // Shift center around to fit video crop inside video
-  if (left < 0) crop.x -= left;
-  else if (right > 0) crop.x -= right;
-  if (top < 0) crop.y -= top;
-  else if (bottom > 0) crop.y -= bottom;
+  if (left < 0) cropped.x -= left;
+  else if (right > 0) cropped.x -= right;
+  if (top < 0) cropped.y -= top;
+  else if (bottom > 0) cropped.y -= bottom;
 
   // Shift x,y to corner of cropped area
-  crop.x -= crop.w / 2;
-  crop.y -= crop.h / 2;
+  cropped.x -= cropped.w / 2;
+  cropped.y -= cropped.h / 2;
 }
 
 function display() {
-  background('red');
-  strokeWeight(10);
-  line(640, 0, 640, height);
-  //background(0);
-  //image(output, 0, 0, 1280, 720);
-  //translate(video.width, 0);
-  image(output, wc.x, wc.y, width, height, crop.x, crop.y, crop.w, crop.h);
+  background('white');
+  if(crop) image(output, wc.x, wc.y, width, height, cropped.x, cropped.y, cropped.w, cropped.h);
+  else image(output, wc.x, wc.y, width, height);
 
 }

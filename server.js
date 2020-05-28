@@ -20,47 +20,82 @@ let start = false;
 // Clients in the output namespace
 let performers = io.of("/performer");
 // Listen for output clients to connect
-performers.on("connection", function(socket) {
+performers.on("connection", socket => {
   console.log("A performer client connected: " + socket.id);
 
   // Listen for this output client to disconnect
-  socket.on("disconnect", function() {
-    console.log("An performer client has disconnected " + socket.id);
+  socket.on("disconnect", () => {
+    console.log("A performer client has disconnected " + socket.id);
+  });
+});
+
+// Clients in the output namespace
+let voices = io.of("/voice");
+// Listen for output clients to connect
+voices.on("connection", socket => {
+  console.log("A voice client connected: " + socket.id);
+
+  // Give start status
+  socket.on("get start", () => {
+    // Sent recording status
+    socket.emit('start', !start);
+  });
+
+  // Listen for data messages from this client
+  socket.on("data", data => {
+    // Data comes in as whatever was sent, including objects
+    //console.log("Received: 'data' " + data);
+    performers.emit("data", data);
+  });
+
+  // Listen for this output client to disconnect
+  socket.on("disconnect", () => {
+    console.log("A voice client has disconnected " + socket.id);
   });
 });
 
 // Clients in the output namespace
 let conductors = io.of("/conductor");
 // Listen for output clients to connect
-conductors.on("connection", function(socket) {
+conductors.on("connection", socket => {
   console.log("A conductor client connected: " + socket.id);
-  
+
+  // Give start status
+  socket.on("get start", () => {
     // Sent recording status
-  if(start) socket.emit('start');
+    socket.emit('start', start);
+  });
 
   // Pass on request to record
-  socket.on("start", (start) => {
+  socket.on("start", _start => {
     console.log("start!");
-    start = start;
+    start = _start;
+    // Turn on audience
     inputs.emit("start", start);
+    // Turn off voice performer
+    voices.emit("start", !start);
   });
-  
+
   // Communicate with performer
   socket.on("range", range => {
     performers.emit("range", range);
-  })
+  });
   socket.on("rate", rate => {
     performers.emit("rate", rate);
-  })
+  });
+  // Pass on request to crop
+  socket.on("crop", crop => {
+    performers.emit("crop", crop);
+  });
   socket.on("freeze", freeze => {
     performers.emit("freeze", freeze);
-  })
+  });
   socket.on("auto", auto => {
     performers.emit("auto", auto);
-  })
+  });
 
   // Listen for this output client to disconnect
-  socket.on("disconnect", function() {
+  socket.on("disconnect", () => {
     console.log("A conductor client has disconnected " + socket.id);
   });
 });
@@ -68,14 +103,17 @@ conductors.on("connection", function(socket) {
 // Clients in the input namespace
 let inputs = io.of("/input");
 // Listen for input clients to connect
-inputs.on("connection", function(socket) {
+inputs.on("connection", socket => {
   console.log("An input client connected: " + socket.id);
-  
-  // Sent recording status
-  if(start) socket.emit('start');
+
+  // Give start status
+  socket.on("get start", () => {
+    // Sent recording status
+    socket.emit('start', start);
+  });
 
   // Listen for data messages from this client
-  socket.on("data", function(data) {
+  socket.on("data", data => {
     // Data comes in as whatever was sent, including objects
     //console.log("Received: 'data' " + data);
 
@@ -92,7 +130,7 @@ inputs.on("connection", function(socket) {
 
   // Listen for this input client to disconnect
   // Tell all of the output clients this client disconnected
-  socket.on("disconnect", function() {
+  socket.on("disconnect", () => {
     console.log("An input client has disconnected " + socket.id);
     conductors.emit("disconnected", socket.id);
   });

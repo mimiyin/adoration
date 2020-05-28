@@ -1,7 +1,33 @@
-// Open and connect output socket
 let socket = io("/conductor");
 // Keep track of users
 let users = {};
+
+// Configuration
+let modes;
+let config;
+let start;
+
+socket.on("connect", () => {
+  console.log("Connected!");
+});
+
+function preload() {
+  loadJSON("config.json", _config => {
+    modes = _config;
+    config = _config.config;
+    console.log("CONFIG:", config);
+
+    // Update status dislay
+    status();
+
+    // Get status from server
+    socket.on("start", _start => {
+      config.start = start;
+      status();
+    });
+    socket.emit("get start");
+  });
+}
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -17,34 +43,36 @@ function setup() {
       loadSound(
         "https://cdn.glitch.com/4116ddd1-c2ff-4d1f-a42a-e3d62a7c7382%2Ftest.m4a?v=1589822197722",
         sound => {
+          sound.setVolume(0);
           sound.loop();
           users[id] = {
             sound: sound,
-            data: data
+            data: data,
+            ts: millis()
           };
         }
       );
-    } else users[id].data = data;
+    } else {
+      users[id].data = data;
+      if (data > 0) users[id].ts = millis();
+    }
   });
 
   // Remove disconnected users
   socket.on("disconnected", function(id) {
     console.log(id + " disconnected.");
     if (id in users) {
+      users[id].sound.setVolume(0);
       users[id].sound.stop();
+      delete users[id].sound;
       delete users[id];
     }
-  });
-
-  // Receive status from server
-  socket.on("status", status => {
-    start = status;
-    update();
   });
 }
 
 // Position data bar
 let x = 0;
+
 function draw() {
   // Draw all the user lines
   // Move across the screen
@@ -61,9 +89,13 @@ function draw() {
     // Get user's data
     let user = users[u];
     let data = user.data;
+    let ts = user.ts;
+
+    // Negate data after a second
+    if (millis() - user.ts > 1000 || config.mute) data = 0;
 
     // Set volume
-    user.sound.setVolume(data);
+    user.sound.setVolume(data * config.vol_mult);
 
     // Visualize the data
     let ydata = data * 50;
@@ -80,92 +112,129 @@ function draw() {
   }
 }
 
-// Cuing recording
-let start = false;
-let rate = 100;
-let range = 0.5;
-let a_freeze = false;
-let m_freeze = false;
 function keyPressed() {
-  
+  // Mode change?
+  try {
+    let settings = modes[key];
+    if (settings) {
+      for (let s in settings) {
+        let setting = settings[s];
+        config[s] = setting;
+      }
+      emit(key);
+    }
+  } catch (e) {
+    console.log("Was not a mode change.");
+  }
+
   switch (key) {
     case ' ':
       toggle();
       break;
-    case 'a':
-      a_freeze = !a_freeze;
-      socket.emit('auto', a_freeze);
-      console.log("AUTO-FREEZE? ", a_freeze);
+    case 'm':
+      config.mute = !config.mute;
+      break;
+    case ']':
+      config.vol_mult += 0.1;
+      break;
+    case '[':
+      config.vol_mult -= 0.1;
+      break;
+    case 's':
+      for (let u in users) {
+        users[u].sound.loop();
+      }
+      break;
+    case 'c':
+      config.crop = !config.crop;
+      socket.emit('crop', config.crop);
+      console.log("CROP? ", config.crop);
       break;
     case 'f':
-      m_freeze = !m_freeze;
-      socket.emit('freeze', m_freeze);
-      console.log("FREEZE? ", m_freeze);
+      config.m_freeze = !config.m_freeze;
+      socket.emit('freeze', config.m_freeze);
+      console.log("FREEZE? ", config.m_freeze);
+      break;
+    case 'a':
+      config.a_freeze = !config.a_freeze;
+      socket.emit('auto', config.a_freeze);
+      console.log("AUTO-FREEZE? ", config.a_freeze);
       break;
   }
 
   let ranged = false;
   let rated = false;
   switch (keyCode) {
-    case UP_ARROW:
-      range += 0.1;
-      ranged = true;
-      break;
-    case DOWN_ARROW:
-      range -= 0.1;
-      ranged = true;
-
-      break;
     case RIGHT_ARROW:
-      rate += 100;
-      rated = true;
+      config.rate += 100;
+      config.rated = true;
       break;
     case LEFT_ARROW:
-      rate -= 100;
-      rated = true;
+      config.rate -= 100;
+      config.rated = true;
       break;
+    case UP_ARROW:
+      config.range += 0.1;
+      config.ranged = true;
+      break;
+    case DOWN_ARROW:
+      config.range -= 0.1;
+      config.ranged = true;
+      break;
+  }
+
+  // Constrain the rate
+  if (rated) {
+    config.rate = constrain(config.rate, 100, 10000);
+    socket.emit("rate", config.rate);
+    console.log("RATE: ", config.rate);
   }
 
   // Constrain the range
   if (ranged) {
-    range = nfs(constrain(range, 0, 1), 0, 1);
-    socket.emit("range", range);
-  }
-  // Constrain the rate
-  if (rated) {
-    rate = constrain(rate, 100, 10000);
-    socket.emit("rate", rate);
+    config.range = nfs(constrain(config.range, 0, 1), 0, 1);
+    socket.emit("range", config.range);
+    console.log("RANGE: ", config.range);
   }
 
-  console.log("RANGE: ", range);
-  console.log("RATE: ", rate);
-  
-  update();
+  // Update the status
+  status();
+}
+
+function emit(mode) {
+  console.log("MODE: ", mode);
+  console.log("CROP: ", config.crop);
+  console.log("FREEZE: ", config.m_freeze);
+  console.log("AUTO: ", config.a_freeze);
+  console.log("RATE: ", config.rate);
+  console.log("RANGE: ", config.range);
+
+  socket.emit("crop", config.crop);
+  socket.emit("freeze", config.m_freeze);
+  socket.emit("auto", config.a_freeze);
+  socket.emit("rate", config.rate);
+  socket.emit("range", config.range);
 }
 
 function toggle() {
   // Toggle recording
-  start = !start;
-  console.log("START", start);
-  
+  config.start = !config.start;
+  console.log("START", config.start);
+
   // Tell everyone
-  socket.emit("start", start);
-  
-  // Null user data
-  if(!start) {
-    for (let u in users) {
-      let user = null;
-    }
-  }
-  
+  socket.emit("start", config.start);
+
   // Update status
-  update();
+  status();
 }
 
-function update() {
-  select("#record").html(start ? "STARTED" : "STOPPED");
-  select("#auto").html("AUTO: " + a_freeze);
-  select("#freeze").html("FREEZE: " + m_freeze);
-  select("#rate").html("RATE: " + rate);
-  select("#range").html("RANGE: " + range);
+function status() {
+  document.getElementById("record").innerHTML = config.start ? "STARTED" : "STOPPED";
+  document.getElementById("crop").innerHTML = config.crop ? "CROPPED" : "FULL";
+  document.getElementById("freeze").innerHTML = "FREEZE: " + config.m_freeze;
+  document.getElementById("auto").innerHTML = "AUTO: " + config.a_freeze;
+  document.getElementById("rate").innerHTML = "RATE: " + config.rate;
+  document.getElementById("range").innerHTML = "RANGE: " + config.range;
+  document.getElementById("mute").innerHTML = config.mute ? "MUTED" : "UNMUTED";
+  document.getElementById("volume").innerHTML = "VOLUME: " + nfs(config.vol_mult, 0, 1);
 }
