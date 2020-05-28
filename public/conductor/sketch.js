@@ -167,19 +167,19 @@ function keyPressed() {
   switch (keyCode) {
     case RIGHT_ARROW:
       config.rate += 100;
-      config.rated = true;
+      rated = true;
       break;
     case LEFT_ARROW:
       config.rate -= 100;
-      config.rated = true;
+      rated = true;
       break;
     case UP_ARROW:
       config.range += 0.1;
-      config.ranged = true;
+      ranged = true;
       break;
     case DOWN_ARROW:
       config.range -= 0.1;
-      config.ranged = true;
+      ranged = true;
       break;
   }
 
