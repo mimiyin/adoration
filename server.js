@@ -72,6 +72,8 @@ conductors.on("connection", socket => {
     start = _start;
     // Turn on audience
     inputs.emit("start", start);
+    // Turn on conductors
+    conductors.emit("start", start);
     // Turn off voice performer
     voices.emit("start", !start);
   });

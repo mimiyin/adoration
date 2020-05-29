@@ -15,6 +15,7 @@ function setup() {
 
   // Get the stream
   getStream(() => {
+    // Listen for the start status
     socket.on('start', _start => {
       start = _start;
       if (tested) {
@@ -44,9 +45,10 @@ function draw() {
     text("Nothing happened? \nReload the page \nand try again.", width / 10, height / 10);
   }
 
-  if (tts > 0 && millis()-tts > 10000) {
+  if (!tested && tts > 0 && millis()-tts > 10000) {
     tested = true;
-    audio.enabled = start;
+    // Get the start status.
+    socket.emit('get start');
     background(0);
   }
   else if (sum > 1000) {
@@ -56,9 +58,9 @@ function draw() {
   }
 
 
-  let sz = 10;
-  if (tested) sz = map(sum, 0.1, 1, 0, 5);
-  else sz = map(sum, 0.1, 10, 0, 5)
+  let sz = 0;
+  if(tested) sz = map(sum, 0.1, 1, 0, 5);
+  else sz = map(sum, 0.1, 10, 0, 5);
 
   fill(255, 2);
   ellipse(random(width), random(height), sz, sz);

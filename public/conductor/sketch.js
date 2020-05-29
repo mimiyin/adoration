@@ -5,7 +5,6 @@ let users = {};
 // Configuration
 let modes;
 let config;
-let start;
 
 socket.on("connect", () => {
   console.log("Connected!");
@@ -21,7 +20,7 @@ function preload() {
     status();
 
     // Get status from server
-    socket.on("start", _start => {
+    socket.on("start", start => {
       config.start = start;
       status();
     });
@@ -192,7 +191,7 @@ function keyPressed() {
 
   // Constrain the range
   if (ranged) {
-    config.range = nfs(constrain(config.range, 0, 1), 0, 1);
+    config.range = constrain(config.range, 0, 1);
     socket.emit("range", config.range);
     console.log("RANGE: ", config.range);
   }
@@ -234,7 +233,7 @@ function status() {
   document.getElementById("freeze").innerHTML = "FREEZE: " + config.m_freeze;
   document.getElementById("auto").innerHTML = "AUTO: " + config.a_freeze;
   document.getElementById("rate").innerHTML = "RATE: " + config.rate;
-  document.getElementById("range").innerHTML = "RANGE: " + config.range;
+  document.getElementById("range").innerHTML = "RANGE: " + nfs(config.range, 0, 1);
   document.getElementById("mute").innerHTML = config.mute ? "MUTED" : "UNMUTED";
   document.getElementById("volume").innerHTML = "VOLUME: " + nfs(config.vol_mult, 0, 1);
 }
