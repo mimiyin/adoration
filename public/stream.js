@@ -43,8 +43,8 @@ function getStream(cb) {
             sum += bin / 256;
           }
 
-          console.log("LEVEL: ", sum /= bins.length);
-          if (tested) socket.emit("data", sum /= bins.length);
+          console.log("LEVEL: ", sum / bins.length);
+          if (tested) socket.emit("data", sum / bins.length);
         };
 
         // Set-up start status

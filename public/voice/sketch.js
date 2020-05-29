@@ -1,6 +1,5 @@
 // Open and connect input socket
 let socket = io("/input");
-let start = false;
 let audio;
 let sum = 0;
 let tested = true;
@@ -15,13 +14,7 @@ function setup() {
 
   // Get the stream
   getStream(()=>{
-    socket.on('start', _start => {
-      start = _start;
-      audio.enabled = start;
-      background(0);
-    });
-    // Ask for start status
-    socket.emit('get start');
+    audio.enabled = true;
   });
 
   // Styling
@@ -29,7 +22,7 @@ function setup() {
   background(0);
 }
 
-function draw() {}
+function draw() {
   let sz = map(sum, 0.1, 1, 0, 5);
   fill(255, 2);
   ellipse(random(width), random(height), sz, sz);

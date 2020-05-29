@@ -29,31 +29,35 @@ function setup() {
   background(0);
   noStroke();
   fill(255, 128);
-  textAlign(LEFT, CENTER);
+  textAlign(LEFT, TOP);
   textSize(64);
-  text("Make some noise \nto test your mic.", width/10, height/2);
+  text("Make some noise \nto test your mic.", width / 10, height / 10);
 }
 
+// Timer for testing the mic
+let tts = -1;
 function draw() {
   // Welcome messaging
-  if(millis() > 10000 & !tested) {
+  if (millis() > 20000 && !tested) {
     background(0);
     fill(255);
-    text("Nothing happened? \nReload the page \nand try again.", width/10, height/2);
+    text("Nothing happened? \nReload the page \nand try again.", width / 10, height / 10);
+  }
 
-  }
-  if(sum > 5000) {
+  if (tts > 0 && millis()-tts > 10000) {
     tested = true;
-    background(0);
     audio.enabled = start;
+    background(0);
   }
-  else if(sum > 2500) {
+  else if (sum > 1000) {
     fill(0, 10);
-    text("Leave \nthis window open \nand return to \nthe live stream.", width/10, height/2);
+    text("Good. \n\nNow leave this \nwindow open \nand return to \nthe live stream.", width / 10, height / 10);
+    if(tts < 0) tts = millis();
   }
+
 
   let sz = 10;
-  if(tested) sz = map(sum, 0.1, 1, 0, 5);
+  if (tested) sz = map(sum, 0.1, 1, 0, 5);
   else sz = map(sum, 0.1, 10, 0, 5)
 
   fill(255, 2);
