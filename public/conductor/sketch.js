@@ -40,7 +40,7 @@ function setup() {
     let data = message.data;
     if (!(id in users)) {
       loadSound(
-        "https://cdn.glitch.com/4116ddd1-c2ff-4d1f-a42a-e3d62a7c7382%2Ftest.m4a?v=1589822197722",
+        "https://cysm.s3.amazonaws.com/yasb.wav",
         sound => {
           sound.setVolume(0);
           sound.loop();
@@ -91,10 +91,13 @@ function draw() {
     let ts = user.ts;
 
     // Negate data after a second
-    if (millis() - user.ts > 1000 || config.mute) data = 0;
+    if (config.mute || !config.start || millis() - user.ts > 1000) data = 0;
 
     // Set volume
     user.sound.setVolume(data * config.vol_mult);
+
+    // Update stored data
+    users[u].data = data;
 
     // Visualize the data
     let ydata = data * 50;
