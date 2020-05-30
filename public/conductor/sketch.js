@@ -38,16 +38,34 @@ function setup() {
     // Get id and data from message
     let id = message.id;
     let data = message.data;
+
+    // Callback when sound sucessfully loads
+    function createUser(sound) {
+      console.log("Successfully loaded sound for user:", id);
+      sound.setVolume(0);
+      sound.loop();
+      console.log("Users", users);
+      users[id].sound = sound;
+    }
+
+    // If new user
     if (!(id in users)) {
-      loadSound("https://cysm.s3.amazonaws.com/yasb.wav", sound => {
-        sound.setVolume(0);
-        sound.loop();
-        users[id] = {
-          sound: sound,
-          data: data,
-          ts: millis()
-        };
-      });
+      users[id] = {
+        sound: null,
+        data: data,
+        ts: millis()
+      };
+      // Try to load sound
+      try {
+        loadSound("./sound.m4a", createUser)
+      } catch (e) {
+        console.log("Sound failed to load.", e);
+        try {
+          loadSound("https://cysm.s3.amazonaws.com/yasb.wav", createUser);
+        } catch (e) {
+          console.log("Sound failed to load from S3.", e);
+        }
+      }
     } else {
       users[id].data = data;
       if (data > 0) users[id].ts = millis();
@@ -82,21 +100,23 @@ function draw() {
   let hue = 0;
   let count = 0;
   for (let u in users) {
+
     // Get user's data
     let user = users[u];
+    let sound = user.sound;
     let data = user.data;
     let ts = user.ts;
 
     // Negate data after a second
     if (config.mute || !config.start || millis() - user.ts > 1000) {
       data = 0;
-      console.log("D", data);
-      users[u].sound.setVolume(0);
+      // Kill the sound
+      if (sound) users[u].sound.setVolume(0);
       // Update stored data
-      users[u].data = data;
+      if (sound) users[u].data = data;
     } else {
       // Set volume
-      users[u].sound.setVolume(data * config.vol_mult);
+      if (sound) users[u].sound.setVolume(data * config.vol_mult);
     }
 
 
@@ -232,9 +252,9 @@ function toggle() {
 }
 
 function status() {
-  document.getElementById("record").innerHTML = config.start
-    ? "STARTED"
-    : "STOPPED";
+  document.getElementById("record").innerHTML = config.start ?
+    "STARTED" :
+    "STOPPED";
   document.getElementById("crop").innerHTML = config.crop ? "CROPPED" : "FULL";
   document.getElementById("freeze").innerHTML = "FREEZE: " + config.m_freeze;
   document.getElementById("auto").innerHTML = "AUTO: " + config.a_freeze;

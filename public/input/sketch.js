@@ -9,6 +9,9 @@ let completed = false;
 // Listen for confirmation of connection
 socket.on("connect", () => {
   console.log("Connected");
+  
+  // Log in with the conductor
+  socket.emit('data', 0);
 });
 
 function setup() {

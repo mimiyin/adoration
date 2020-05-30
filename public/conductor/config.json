@@ -7,7 +7,7 @@
     "a_freeze": false,
     "rate": 100,
     "range": 0.5,
-    "vol_mult": 1
+    "vol_mult": 5
   },
   "1": {
     "rate": 100,
