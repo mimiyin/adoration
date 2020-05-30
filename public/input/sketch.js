@@ -4,6 +4,7 @@ let start = false;
 let audio;
 let sum = 0;
 let tested = false;
+let completed = false;
 
 // Listen for confirmation of connection
 socket.on("connect", () => {
@@ -44,8 +45,8 @@ function draw() {
     fill(255);
     text("Nothing happened?\n\nReload the page\nand try again.\n\nUse Safari on iOS.", width / 10, height / 10);
   }
-  else if (!tested && tts > 0 && millis()-tts > 10000) {
-    tested = true;
+  else if (!completed && tts > 0 && millis()-tts > 10000) {
+    completed = true;
     // Get the start status.
     socket.emit('get start');
     background(0);
@@ -53,6 +54,7 @@ function draw() {
   else if (sum > 1000) {
     fill(0, 10);
     text("Good.\n\nNow leave this\nwindow open\nand return to\nthe live stream.", width / 10, height / 10);
+    tested = true;
     if(tts < 0) tts = millis();
   }
 
