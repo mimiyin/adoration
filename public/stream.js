@@ -33,7 +33,7 @@ function getStream(cb) {
           analyser.getByteFrequencyData(bins);
 
           // Re-calculate volume every time
-          if(tested) {
+          if(completed) {
             sum = 0;
             console.log("sum", tested);
           }
@@ -44,7 +44,7 @@ function getStream(cb) {
           }
 
           console.log("LEVEL: ", sum / bins.length);
-          if (tested) socket.emit("data", sum / bins.length);
+          if (completed) socket.emit("data", sum / bins.length);
         };
 
         // Set-up start status
