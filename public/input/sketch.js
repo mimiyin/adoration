@@ -46,12 +46,14 @@ function draw() {
     text("Nothing happened?\n\nReload the page\nand try again.\n\nUse Safari on iOS.", width / 10, height / 10);
   }
   else if (!completed && tts > 0 && millis()-tts > 10000) {
+    console.log("Completed!");
     completed = true;
     // Get the start status.
     socket.emit('get start');
     background(0);
   }
   else if (sum > 1000) {
+    console.log("Mic works!");
     fill(0, 10);
     text("Good.\n\nNow leave this\nwindow open\nand return to\nthe live stream.", width / 10, height / 10);
     tested = true;
