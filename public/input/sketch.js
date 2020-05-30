@@ -32,20 +32,19 @@ function setup() {
   fill(255, 128);
   textAlign(LEFT, TOP);
   textSize(64);
-  text("Make some noise \nto test your mic.", width / 10, height / 10);
+  text("Make some noise\nto test your mic.", width / 10, height / 10);
 }
 
 // Timer for testing the mic
 let tts = -1;
 function draw() {
   // Welcome messaging
-  if (millis() > 20000 && !tested) {
+  if (millis() > 30000 && !tested) {
     background(0);
     fill(255);
-    text("Nothing happened? \nReload the page \nand try again.", width / 10, height / 10);
+    text("Nothing happened?\n\nReload the page\nand try again.\n\nUse Safari on iOS.", width / 10, height / 10);
   }
-
-  if (!tested && tts > 0 && millis()-tts > 10000) {
+  else if (!tested && tts > 0 && millis()-tts > 10000) {
     tested = true;
     // Get the start status.
     socket.emit('get start');
@@ -53,7 +52,7 @@ function draw() {
   }
   else if (sum > 1000) {
     fill(0, 10);
-    text("Good. \n\nNow leave this \nwindow open \nand return to \nthe live stream.", width / 10, height / 10);
+    text("Good.\n\nNow leave this\nwindow open\nand return to\nthe live stream.", width / 10, height / 10);
     if(tts < 0) tts = millis();
   }
 

@@ -138,6 +138,12 @@ function draw() {
   let unfrozen = !a_freeze && !m_freeze;
   console.log("UNFROZEN? ", unfrozen);
   if (unfrozen) display();
+  // Display random dots
+  else {
+    noStroke();
+    fill(255, 16);
+    rect(random(width), random(height), 5, 5);
+  }
 }
 
 // Found bodies

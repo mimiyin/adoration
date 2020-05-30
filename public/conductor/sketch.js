@@ -39,18 +39,15 @@ function setup() {
     let id = message.id;
     let data = message.data;
     if (!(id in users)) {
-      loadSound(
-        "https://cysm.s3.amazonaws.com/yasb.wav",
-        sound => {
-          sound.setVolume(0);
-          sound.loop();
-          users[id] = {
-            sound: sound,
-            data: data,
-            ts: millis()
-          };
-        }
-      );
+      loadSound("https://cysm.s3.amazonaws.com/yasb.wav", sound => {
+        sound.setVolume(0);
+        sound.loop();
+        users[id] = {
+          sound: sound,
+          data: data,
+          ts: millis()
+        };
+      });
     } else {
       users[id].data = data;
       if (data > 0) users[id].ts = millis();
@@ -91,13 +88,17 @@ function draw() {
     let ts = user.ts;
 
     // Negate data after a second
-    if (config.mute || !config.start || millis() - user.ts > 1000) data = 0;
+    if (config.mute || !config.start || millis() - user.ts > 1000) {
+      data = 0;
+      console.log("D", data);
+      users[u].sound.setVolume(0);
+      // Update stored data
+      users[u].data = data;
+    } else {
+      // Set volume
+      users[u].sound.setVolume(data * config.vol_mult);
+    }
 
-    // Set volume
-    user.sound.setVolume(data * config.vol_mult);
-
-    // Update stored data
-    users[u].data = data;
 
     // Visualize the data
     let ydata = data * 50;
@@ -130,36 +131,36 @@ function keyPressed() {
   }
 
   switch (key) {
-    case ' ':
+    case " ":
       toggle();
       break;
-    case 'm':
+    case "m":
       config.mute = !config.mute;
       break;
-    case ']':
+    case "]":
       config.vol_mult += 0.1;
       break;
-    case '[':
+    case "[":
       config.vol_mult -= 0.1;
       break;
-    case 's':
+    case "s":
       for (let u in users) {
         users[u].sound.loop();
       }
       break;
-    case 'c':
+    case "c":
       config.crop = !config.crop;
-      socket.emit('crop', config.crop);
+      socket.emit("crop", config.crop);
       console.log("CROP? ", config.crop);
       break;
-    case 'f':
+    case "f":
       config.m_freeze = !config.m_freeze;
-      socket.emit('freeze', config.m_freeze);
+      socket.emit("freeze", config.m_freeze);
       console.log("FREEZE? ", config.m_freeze);
       break;
-    case 'a':
+    case "a":
       config.a_freeze = !config.a_freeze;
-      socket.emit('auto', config.a_freeze);
+      socket.emit("auto", config.a_freeze);
       console.log("AUTO-FREEZE? ", config.a_freeze);
       break;
   }
@@ -231,12 +232,16 @@ function toggle() {
 }
 
 function status() {
-  document.getElementById("record").innerHTML = config.start ? "STARTED" : "STOPPED";
+  document.getElementById("record").innerHTML = config.start
+    ? "STARTED"
+    : "STOPPED";
   document.getElementById("crop").innerHTML = config.crop ? "CROPPED" : "FULL";
   document.getElementById("freeze").innerHTML = "FREEZE: " + config.m_freeze;
   document.getElementById("auto").innerHTML = "AUTO: " + config.a_freeze;
   document.getElementById("rate").innerHTML = "RATE: " + config.rate;
-  document.getElementById("range").innerHTML = "RANGE: " + nfs(config.range, 0, 1);
+  document.getElementById("range").innerHTML =
+    "RANGE: " + nfs(config.range, 0, 1);
   document.getElementById("mute").innerHTML = config.mute ? "MUTED" : "UNMUTED";
-  document.getElementById("volume").innerHTML = "VOLUME: " + nfs(config.vol_mult, 0, 1);
+  document.getElementById("volume").innerHTML =
+    "VOLUME: " + nfs(config.vol_mult, 0, 1);
 }

@@ -2,11 +2,7 @@ body {
   margin : 0px;
 }
 
-#username {
-  position: fixed;
-  bottom: 0px;
-  left: 0px;
+canvas {
   width: 100vw;
-  height: 2em;
-  font-size: 1.5em;
+  height: 100vh;
 }
