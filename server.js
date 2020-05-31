@@ -1,18 +1,11 @@
 // Create server
 let port = process.env.PORT || 8000;
+let enforce = require('express-sslify');
 let express = require("express");
 let app = express();
 
-app.use(function(req, res, next) {
-  console.log("HELLO HELLO", req);
-  if (req.secure) {
-    // request was via https, so do no special handling
-    next();
-  } else {
-    // request was via http, so redirect to https
-    res.redirect('https://' + req.headers.host + req.url);
-  }
-});
+// Redirect to HTTPS
+app.use(enforce.HTTPS());
 
 // Tell server where to look for files
 app.use(express.static(__dirname + '/public'));
@@ -23,7 +16,7 @@ let server = require("http")
   .listen(port, function() {
     console.log("Server listening at port: ", port);
   });
-
+/*
 // Create socket connection
 let io = require("socket.io").listen(server);
 
@@ -150,3 +143,4 @@ inputs.on("connection", socket => {
     conductors.emit("disconnected", socket.id);
   });
 });
+*/
