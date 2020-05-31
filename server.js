@@ -1,5 +1,6 @@
 // Create server
 let port = process.env.PORT || 8000;
+let enforce = require('express-sslify');
 let express = require("express");
 let app = express();
 let server = require("http")
@@ -7,6 +8,9 @@ let server = require("http")
   .listen(port, function() {
     console.log("Server listening at port: ", port);
   });
+
+// Enforce HTTPS
+app.use(enforce.HTTPS());
 
 // Tell server where to look for files
 app.use(express.static("public"));
