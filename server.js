@@ -9,11 +9,8 @@ let server = require("http")
     console.log("Server listening at port: ", port);
   });
 
-// Enforce HTTPS
-app.use(enforce.HTTPS());
-
 // Tell server where to look for files
-app.use(express.static("public"));
+app.use([enforce.HTTPS(), express.static("public")]);
 
 // Create socket connection
 let io = require("socket.io").listen(server);
