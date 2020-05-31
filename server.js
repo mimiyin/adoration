@@ -14,7 +14,7 @@ app.all('*', function(req, res, next){
 });
 
 // Tell server where to look for files
-//app.use(express.static("public"));
+app.use(express.static("public"));
 
 // Create seruver
 let server = require("http")
