@@ -3,13 +3,19 @@ let port = process.env.PORT || 8000;
 let express = require("express");
 let app = express();
 
-app.get("*", function(req, res){
-  console.log("HELLO HELLO", req)
-  res.redirect("https://" + req.headers.host + req.url);
+app.use(function(req, res, next) {
+  console.log("HELLO HELLO", req);
+  if (req.secure) {
+    // request was via https, so do no special handling
+    next();
+  } else {
+    // request was via http, so redirect to https
+    res.redirect('https://' + req.headers.host + req.url);
+  }
 });
 
 // Tell server where to look for files
-app.use(express.static("public"));
+app.use(express.static(__dirname + '/public'));
 
 // Create seruver
 let server = require("http")
