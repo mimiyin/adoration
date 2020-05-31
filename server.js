@@ -4,8 +4,17 @@ let enforce = require('express-sslify');
 let express = require("express");
 let app = express();
 
+app.all('*', function(req, res, next){
+    console.log('req start: ',req.secure, req.hostname, req.url, app.get('port'));
+    if (req.secure) {
+        return next();
+    }
+
+    res.redirect('https://'+req.hostname + ':' + app.get('secPort') + req.url);
+});
+
 // Tell server where to look for files
-app.use(express.static("public"));
+//app.use(express.static("public"));
 
 // Create seruver
 let server = require("http")
