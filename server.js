@@ -5,10 +5,10 @@ let express = require("express");
 let app = express();
 
 // Redirect to HTTPS
-app.use(enforce.HTTPS());
+//app.use(enforce.HTTPS());
 
 // Tell server where to look for files
-app.use(express.static(__dirname + '/public'));
+app.use(express.static('public'));
 
 // Create seruver
 let server = require("http")
@@ -16,7 +16,7 @@ let server = require("http")
   .listen(port, function() {
     console.log("Server listening at port: ", port);
   });
-/*
+
 // Create socket connection
 let io = require("socket.io").listen(server);
 
@@ -143,4 +143,3 @@ inputs.on("connection", socket => {
     conductors.emit("disconnected", socket.id);
   });
 });
-*/
