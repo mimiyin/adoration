@@ -4,6 +4,7 @@ let express = require("express");
 let app = express();
 
 app.use(
+  express.static('public'),
   function(req, res, next) {
     console.log("SECURE?", req.headers['x-forwarded-proto']);
     console.log("HI", req.subdomains, req.hostname, req.originalUrl);
@@ -28,7 +29,7 @@ let server = require("http")
   });
 
 // Tell server where to look for files
-app.use(express.static('public'));
+//app.use(express.static('public'));
 
 // Create socket connection
 let io = require("socket.io").listen(server);
