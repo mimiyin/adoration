@@ -5,8 +5,8 @@ let app = express();
 let enforce = require('express-sslify');
 
 app.use(
-  express.static('public'),
-  enforce.HTTPS());
+  enforce.HTTPS(),
+  express.static('public'));
   // function(req, res, next) {
   //   console.log("SECURE?", req.headers['x-forwarded-proto']);
   //   console.log("HI", req.subdomains, req.hostname, req.originalUrl);
