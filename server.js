@@ -21,7 +21,7 @@ app.use(
     } else {
       next();
     }
-  };)
+  });
 
 // Tell server where to look for files
 app.use(express.static('public'));
