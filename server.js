@@ -8,7 +8,7 @@ let app = express();
 //app.use(enforce.HTTPS());
 
 app.use(
-  return function(req, res, next) {
+  function(req, res, next) {
     console.log("SECURE?", req.headers['x-forwarded-proto']);
     console.log("HI", req.subdomains, req.hostname, req.originalUrl);
     if (environments.indexOf(process.env.NODE_ENV) >= 0) {
