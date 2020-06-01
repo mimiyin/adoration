@@ -2,23 +2,25 @@
 let port = process.env.PORT || 8000;
 let express = require("express");
 let app = express();
+let enforce = require('express-sslify');
 
 app.use(
   express.static('public'),
-  function(req, res, next) {
-    console.log("SECURE?", req.headers['x-forwarded-proto']);
-    console.log("HI", req.subdomains, req.hostname, req.originalUrl);
-    // if (environments.indexOf(process.env.NODE_ENV) >= 0) {
-    //   if (req.headers['x-forwarded-proto'] != 'https') {
-    //     console.log('NOT SECURE');
-    //     res.redirect(status, 'https://' + req.subdomains[0] + req.hostname + req.originalUrl);
-    //   } else {
-    //     next();
-    //   }
-    // } else {
-    //   next();
-    // }
-  });
+  enforce.HTTPS());
+  // function(req, res, next) {
+  //   console.log("SECURE?", req.headers['x-forwarded-proto']);
+  //   console.log("HI", req.subdomains, req.hostname, req.originalUrl);
+  //   // if (environments.indexOf(process.env.NODE_ENV) >= 0) {
+  //   //   if (req.headers['x-forwarded-proto'] != 'https') {
+  //   //     console.log('NOT SECURE');
+  //   //     res.redirect(status, 'https://' + req.subdomains[0] + req.hostname + req.originalUrl);
+  //   //   } else {
+  //   //     next();
+  //   //   }
+  //   // } else {
+  //   //   next();
+  //   // }
+  // });
 
 
 // Create seruver
