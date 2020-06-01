@@ -2,15 +2,13 @@
 let port = process.env.PORT || 8000;
 let express = require("express");
 let app = express();
-let enforce = require('express-sslify');
 
 app.use(
-// enforce.HTTPS(),
 function(req, res, next) {
-  console.log("SECURE?", req.headers['x-forwarded-proto']);
-  console.log("HI", req.subdomains, req.hostname, req.originalUrl);
+  console.log("Are you secure?", req.headers['x-forwarded-proto']);
+  console.log("Hi there.", req.subdomains, req.hostname, req.originalUrl);
   if (req.headers['x-forwarded-proto'] != 'https') {
-    console.log('NOT SECURE');
+    console.log('Not secure.');
     res.redirect(301, 'https://' + req.hostname + req.originalUrl);
   } else {
     next();
