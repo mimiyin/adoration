@@ -9,8 +9,11 @@ let app = express();
 
 app.use(
   return function(req, res, next) {
+    console.log("SECURE?", req.headers['x-forwarded-proto']);
+    console.log("HI", req.subdomains, req.hostname, req.originalUrl);
     if (environments.indexOf(process.env.NODE_ENV) >= 0) {
       if (req.headers['x-forwarded-proto'] != 'https') {
+        console.log('NOT SECURE');
         res.redirect(status, 'https://' + req.subdomains[0] + req.hostname + req.originalUrl);
       } else {
         next();
