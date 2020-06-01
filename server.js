@@ -11,7 +11,7 @@ function(req, res, next) {
   console.log("HI", req.subdomains, req.hostname, req.originalUrl);
   if (req.headers['x-forwarded-proto'] != 'https') {
     console.log('NOT SECURE');
-    res.redirect(status, 'https://' + req.hostname + req.originalUrl);
+    res.redirect(301, 'https://' + req.hostname + req.originalUrl);
   } else {
     next();
   }
