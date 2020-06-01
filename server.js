@@ -5,7 +5,20 @@ let express = require("express");
 let app = express();
 
 // Redirect to HTTPS
-app.use(enforce.HTTPS());
+//app.use(enforce.HTTPS());
+
+app.use(
+  return function(req, res, next) {
+    if (environments.indexOf(process.env.NODE_ENV) >= 0) {
+      if (req.headers['x-forwarded-proto'] != 'https') {
+        res.redirect(status, 'https://' + req.subdomains[0] + req.hostname + req.originalUrl);
+      } else {
+        next();
+      }
+    } else {
+      next();
+    }
+  };)
 
 // Tell server where to look for files
 app.use(express.static('public'));
