@@ -7,13 +7,18 @@ var app = express();
 // Use enforce.HTTPS({ trustProtoHeader: true }) in case you are behind
 // a load balancer (e.g. Heroku). See further comments below
 app.use(function(req, res, next) {
+  console.log("HELLO");
   if (environments.indexOf(process.env.NODE_ENV) >= 0) {
+    console.log("YES THIS IS NODE", req.headers['x-forwarded-proto']);
     if (req.headers['x-forwarded-proto'] != 'https') {
+      console.log("NO THIS IS NOT HTTP");
       res.redirect(status, 'https://' + req.hostname + req.originalUrl);
     } else {
+      console.log("YES THIS IS HTTP")
       next();
     }
   } else {
+    console.log("NO THIS IS NOT NODE");
     next();
   }
 };);
