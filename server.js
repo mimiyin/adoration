@@ -19,8 +19,6 @@ app.use(
     // }
   });
 
-// Tell server where to look for files
-app.use(express.static('public'));
 
 // Create seruver
 let server = require("http")
@@ -28,6 +26,9 @@ let server = require("http")
   .listen(port, function() {
     console.log("Server listening at port: ", port);
   });
+
+// Tell server where to look for files
+app.use(express.static('public'));
 
 // Create socket connection
 let io = require("socket.io").listen(server);
