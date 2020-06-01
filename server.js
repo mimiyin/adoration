@@ -6,10 +6,20 @@ var app = express();
 
 // Use enforce.HTTPS({ trustProtoHeader: true }) in case you are behind
 // a load balancer (e.g. Heroku). See further comments below
-app.use(enforce.HTTPS());
+app.use(function(req, res, next) {
+  if (environments.indexOf(process.env.NODE_ENV) >= 0) {
+    if (req.headers['x-forwarded-proto'] != 'https') {
+      res.redirect(status, 'https://' + req.hostname + req.originalUrl);
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
+};);
 
 http.createServer(app).listen(8000, function() {
-    console.log('Express server listening on port ' + 8000);
+  console.log('Express server listening on port ' + 8000);
 });
 
 // // Create server
