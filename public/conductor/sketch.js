@@ -159,11 +159,11 @@ function keyPressed() {
       break;
     case "]":
       config.vol_mult += 0.1;
-      config.vol_mult.min(10, config.vol_mult);
+      config.vol_mult = min(10, config.vol_mult);
       break;
     case "[":
       config.vol_mult -= 0.1;
-      config.vol_mult.max(0, config.vol_mult);
+      config.vol_mult = max(0, config.vol_mult);
       break;
     case "s":
       for (let u in users) {
