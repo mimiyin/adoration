@@ -57,7 +57,7 @@ function setup() {
       };
       // Try to load sound
       try {
-        loadSound("./sound.m4a", createUser)
+        loadSound(config.sound, createUser)
       } catch (e) {
         console.log("Sound failed to load.", e);
         try {

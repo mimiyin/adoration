@@ -3,6 +3,7 @@ let port = process.env.PORT || 8000;
 let express = require("express");
 let app = express();
 
+//Redirect http => to https
 app.use(
 function(req, res, next) {
   console.log("Are you secure?", req.headers['x-forwarded-proto']);
@@ -13,6 +14,7 @@ function(req, res, next) {
   } else {
     next();
   }
+// Point to static folder
 }, express.static('public'));
 
 
