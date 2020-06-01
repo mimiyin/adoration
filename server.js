@@ -9,7 +9,7 @@ app.use(
 function(req, res, next) {
   console.log("SECURE?", req.headers['x-forwarded-proto']);
   console.log("HI", req.subdomains, req.hostname, req.originalUrl);
-  if (req.headers['x-forwarded-proto'] != 'https') {
+  if (req.secure) {
     console.log('NOT SECURE');
     res.redirect(301, 'https://' + req.hostname + req.originalUrl);
   } else {
