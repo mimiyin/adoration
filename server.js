@@ -6,7 +6,6 @@ let enforce = require('express-sslify');
 
 app.use(
 // enforce.HTTPS(),
-// express.static('public', { redirect : false }));
 function(req, res, next) {
   console.log("SECURE?", req.headers['x-forwarded-proto']);
   console.log("HI", req.subdomains, req.hostname, req.originalUrl);
@@ -14,11 +13,9 @@ function(req, res, next) {
     console.log('NOT SECURE');
     res.redirect(status, 'https://' + req.hostname + req.originalUrl);
   } else {
-    res.sendFile('public/index.html');
     next();
   }
-}
-});
+}, express.static('public'));
 
 
 // Create seruver
