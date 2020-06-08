@@ -1,20 +1,29 @@
 let socket = io("/conductor");
 // Keep track of users
 let users = {};
+let num = 0;
 
 // Configuration
 let modes;
 let config;
+let pckeys;
+
+// Sound file
+let source;
 
 socket.on("connect", () => {
   console.log("Connected!");
 });
 
 function preload() {
-  loadJSON("config.json", _config => {
-    modes = _config;
+  loadJSON("../config.json", _config => {
+    modes = _config.modes;
     config = _config.config;
+    pckeys = _config.pckeys;
     console.log("CONFIG:", config);
+
+    // Load sound to cache it...
+    source = loadSound(config.sound);
 
     // Update status dislay
     status();
@@ -25,10 +34,18 @@ function preload() {
       status();
     });
     socket.emit("get start");
+
+    // Get user count from server
+    socket.on("user count", count => {
+      num = count;
+      status();
+    });
+    socket.emit("get user count");
   });
 }
 
 function setup() {
+  console.log(source);
   createCanvas(windowWidth, windowHeight);
   background(255);
   colorMode(HSB, 360, 100, 100);
@@ -43,30 +60,38 @@ function setup() {
     function createUser(sound) {
       console.log("Successfully loaded sound for user:", id);
       sound.setVolume(0);
+      sound.jump(random(sound.duration()));
       sound.loop();
-      console.log("Users", users);
       users[id].sound = sound;
+      status();
     }
 
     // If new user
     if (!(id in users)) {
+      // Max out at 100
+      if(num >=config.max) return;
+
+      // Create user
       users[id] = {
         sound: null,
         data: data,
         ts: millis()
       };
+
       // Try to load sound
       try {
-        loadSound(config.sound, createUser)
+        loadSound(config.sound, createUser);
       } catch (e) {
         console.log("Sound failed to load.", e);
         try {
           loadSound("https://cysm.s3.amazonaws.com/yasb.wav", createUser);
         } catch (e) {
           console.log("Sound failed to load from S3.", e);
+          console.log("Giving up on ", id);
+          delete users[id];
         }
       }
-    } else {
+    } else if(users[id]){
       users[id].data = data;
       if (data > 0) users[id].ts = millis();
     }
@@ -80,6 +105,7 @@ function setup() {
       users[id].sound.stop();
       delete users[id].sound;
       delete users[id];
+      status();
     }
   });
 }
@@ -96,9 +122,11 @@ function draw() {
     x = 0;
   }
 
+  // Normalize the volume if there's more than 1 user
+  let vol_mult = num > 1 ? config.vol_mult / num : config.vol_mult;
+
   let y = 0;
   let hue = 0;
-  let count = 0;
   for (let u in users) {
 
     // Get user's data
@@ -116,7 +144,7 @@ function draw() {
       if (sound) users[u].data = data;
     } else {
       // Set volume
-      if (sound) users[u].sound.setVolume(data * config.vol_mult);
+      if (sound) users[u].sound.setVolume(data * vol_mult);
     }
 
 
@@ -129,9 +157,6 @@ function draw() {
 
     // Shift down
     y += ydata;
-
-    // Count
-    count++;
   }
 }
 
@@ -144,7 +169,7 @@ function keyPressed() {
         let setting = settings[s];
         config[s] = setting;
       }
-      emit(key);
+      console.log("MODE: ", key, config);
     }
   } catch (e) {
     console.log("Was not a mode change.");
@@ -172,73 +197,57 @@ function keyPressed() {
       break;
     case "c":
       config.crop = !config.crop;
-      socket.emit("crop", config.crop);
-      console.log("CROP? ", config.crop);
       break;
     case "f":
       config.m_freeze = !config.m_freeze;
-      socket.emit("freeze", config.m_freeze);
-      console.log("FREEZE? ", config.m_freeze);
+      if (config.m_freeze) config.a_freeze = false;
       break;
     case "a":
       config.a_freeze = !config.a_freeze;
-      socket.emit("auto", config.a_freeze);
-      console.log("AUTO-FREEZE? ", config.a_freeze);
+      if (config.a_freeze) config.m_freeze = false;
+      break;
+    case "i":
+      config.intro = !config.intro;
+      socket.emit("intro", config.intro);
       break;
   }
 
-  let ranged = false;
-  let rated = false;
   switch (keyCode) {
     case RIGHT_ARROW:
       config.rate += 100;
-      rated = true;
       break;
     case LEFT_ARROW:
       config.rate -= 100;
-      rated = true;
       break;
     case UP_ARROW:
       config.range += 0.1;
-      ranged = true;
       break;
     case DOWN_ARROW:
       config.range -= 0.1;
-      ranged = true;
       break;
   }
 
   // Constrain the rate
-  if (rated) {
-    config.rate = constrain(config.rate, 100, 10000);
-    socket.emit("rate", config.rate);
-    console.log("RATE: ", config.rate);
-  }
+  config.rate = constrain(config.rate, 100, 10000);
 
   // Constrain the range
-  if (ranged) {
-    config.range = constrain(config.range, 0, 1);
-    socket.emit("range", config.range);
-    console.log("RANGE: ", config.range);
-  }
+  config.range = constrain(config.range, 0, 1);
+
+  // emit the config updates
+  emit();
 
   // Update the status
   status();
 }
 
+// Emit config for performers
 function emit(mode) {
-  console.log("MODE: ", mode);
-  console.log("CROP: ", config.crop);
-  console.log("FREEZE: ", config.m_freeze);
-  console.log("AUTO: ", config.a_freeze);
-  console.log("RATE: ", config.rate);
-  console.log("RANGE: ", config.range);
-
-  socket.emit("crop", config.crop);
-  socket.emit("freeze", config.m_freeze);
-  socket.emit("auto", config.a_freeze);
-  socket.emit("rate", config.rate);
-  socket.emit("range", config.range);
+  let pconfig = {};
+  for (let pckey of pckeys) {
+    pconfig[pckey] = config[pckey];
+  }
+  // Share performance config
+  socket.emit("config", pconfig);
 }
 
 function toggle() {
@@ -254,6 +263,8 @@ function toggle() {
 }
 
 function status() {
+  document.getElementById("intro").innerHTML = "INTRO: " + config.intro;
+  document.getElementById("num").innerHTML = "NUM: " + num;
   document.getElementById("record").innerHTML = config.start ?
     "STARTED" :
     "STOPPED";

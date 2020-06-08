@@ -4,17 +4,17 @@ let express = require("express");
 let app = express();
 
 //Redirect http => to https
-app.use(
-    function(req, res, next) {
-      console.log("Are you secure?", req.headers['x-forwarded-proto']);
-      console.log("Hi there.", req.subdomains, req.hostname, req.originalUrl);
-      if (req.headers['x-forwarded-proto'] != 'https') {
-        console.log('Not secure.');
-        res.redirect(301, 'https://' + req.hostname + req.originalUrl);
-      } else {
-        next();
-      }
-    });
+// app.use(
+//     function(req, res, next) {
+//       console.log("Are you secure?", req.headers['x-forwarded-proto']);
+//       console.log("Hi there.", req.subdomains, req.hostname, req.originalUrl);
+//       if (req.headers['x-forwarded-proto'] != 'https') {
+//         console.log('Not secure.');
+//         res.redirect(301, 'https://' + req.hostname + req.originalUrl);
+//       } else {
+//         next();
+//       }
+//     });
 
 // Point to static folder
 app.use(express.static('public'));
@@ -27,17 +27,22 @@ let server = require("http")
     console.log("Server listening at port: ", port);
   });
 
-// Tell server where to look for files
-//app.use(express.static('public'));
-
-// Create socket connection
-let io = require("socket.io").listen(server);
 
 // Server side data
 let start = false;
+let config;
 
+// Create socket connection
+let io = require("socket.io").listen(server);
+// Clients in the input namespace
+let inputs = io.of("/input");
 // Clients in the output namespace
 let performers = io.of("/performer");
+// Clients in the output namespace
+let voices = io.of("/voice");
+// Clients in the output namespace
+let conductors = io.of("/conductor");
+
 // Listen for output clients to connect
 performers.on("connection", socket => {
   console.log("A performer client connected: " + socket.id);
@@ -48,8 +53,6 @@ performers.on("connection", socket => {
   });
 });
 
-// Clients in the output namespace
-let voices = io.of("/voice");
 // Listen for output clients to connect
 voices.on("connection", socket => {
   console.log("A voice client connected: " + socket.id);
@@ -73,8 +76,6 @@ voices.on("connection", socket => {
   });
 });
 
-// Clients in the output namespace
-let conductors = io.of("/conductor");
 // Listen for output clients to connect
 conductors.on("connection", socket => {
   console.log("A conductor client connected: " + socket.id);
@@ -83,6 +84,11 @@ conductors.on("connection", socket => {
   socket.on("get start", () => {
     // Sent recording status
     socket.emit('start', start);
+  });
+
+  // Give connected Clients
+  socket.on("get user count", () => {
+    updateInputCount();
   });
 
   // Pass on request to record
@@ -98,21 +104,14 @@ conductors.on("connection", socket => {
   });
 
   // Communicate with performer
-  socket.on("range", range => {
-    performers.emit("range", range);
+  socket.on("config", _config => {
+    config = _config;
+    performers.emit("config", config);
   });
-  socket.on("rate", rate => {
-    performers.emit("rate", rate);
-  });
-  // Pass on request to crop
-  socket.on("crop", crop => {
-    performers.emit("crop", crop);
-  });
-  socket.on("freeze", freeze => {
-    performers.emit("freeze", freeze);
-  });
-  socket.on("auto", auto => {
-    performers.emit("auto", auto);
+
+  // Show intro
+  socket.on("intro", _intro => {
+    performers.emit("intro", _intro);
   });
 
   // Listen for this output client to disconnect
@@ -121,14 +120,21 @@ conductors.on("connection", socket => {
   });
 });
 
-// Clients in the input namespace
-let inputs = io.of("/input");
 // Listen for input clients to connect
 inputs.on("connection", socket => {
   console.log("An input client connected: " + socket.id);
+  updateInputCount();
+
+  // Failed to turn on mic
+  socket.on("no mic", () => {
+    console.log(socket.id + " has no mic.");
+  });
 
   // Give start status
   socket.on("get start", () => {
+    // Print success message
+    console.log(socket.id + " successfully completed mic test.");
+
     // Sent recording status
     socket.emit('start', start);
   });
@@ -154,5 +160,15 @@ inputs.on("connection", socket => {
   socket.on("disconnect", () => {
     console.log("An input client has disconnected " + socket.id);
     conductors.emit("disconnected", socket.id);
+    updateInputCount();
   });
 });
+
+// Get input count
+function updateInputCount(){
+  let inputSockets = inputs.sockets;
+  let count = Object.keys(inputSockets).length;
+  for(let s in inputSockets) console.log(s);
+  console.log("count", count);
+  conductors.emit("user count", count);
+}

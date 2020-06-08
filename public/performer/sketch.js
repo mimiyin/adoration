@@ -50,12 +50,20 @@ let H2W;
 let I2O = ocs.video.width / ics.video.width;
 
 // Conducting
-let crop = false;
-let m_freeze = false;
-let a_freeze = false;
-let rate = 100;
-let range = 0.5;
+let config;
 let lts = 0;
+
+function preload() {
+  loadJSON("../config.json", _config => {
+    config = _config.config;
+    console.log("CONFIG:", config);
+
+    // Listening for instructions from conductor
+    socket.on("config", _config => {
+      config = _config;
+    });
+  });
+}
 
 function setup() {
   createCanvas(1280, 720);
@@ -73,6 +81,7 @@ function setup() {
   output = createCapture(ocs, stream => {
     console.log("GOT OUTPUT STREAM");
   });
+
   output.hide();
 
   // Set up input video
@@ -91,41 +100,21 @@ function setup() {
 
   // Listen for data
   socket.on("data", level => {
-    console.log("Data", level);
+    //console.log("Data", level);
     let go = false;
     let ts = floor(millis());
-    if(ts - lts > rate) {
+    if (ts - lts > config.rate) {
       go = true;
       lts = ts;
     }
     if (level > 0.01 && go) update(level);
   });
 
-  // Listening for instructions from conductor
-  socket.on("rate", _rate => {
-    rate = _rate;
-  });
-
-  // Sensitivity of cropping relative to amplitude
-  socket.on("range", _range => {
-    range = _range;
-  });
-
-  // To crop or not to crop
-  socket.on("crop", _crop => {
-    crop = _crop;
-  });
-
-  // Manual override to freeze
-  socket.on("freeze", _m_freeze => {
-    m_freeze = _m_freeze;
-    if(m_freeze) a_freeze = false;
-  });
-
-  // Auto-freeze on every crop?
-  socket.on("auto", _a_freeze => {
-    a_freeze = _a_freeze;
-    if(a_freeze) m_freeze = false;
+  // Listen for intro
+  socket.on("intro", _intro => {
+    intro = _intro;
+    if (intro) showIntro();
+    else hideIntro();
   });
 
 }
@@ -135,7 +124,7 @@ function modelReady() {
 }
 
 function draw() {
-  let unfrozen = !a_freeze && !m_freeze;
+  let unfrozen = !config.a_freeze && !config.m_freeze;
   console.log("UNFROZEN? ", unfrozen);
   if (unfrozen) display();
   // Display random dots
@@ -168,23 +157,26 @@ function resize() {
 }
 
 function update(level) {
-  if (body == null) return;
-  // Randomize
-  joint = body[random(joints)];
-  // Constrain the level
-  level = constrain(level, 0, range);
-  scl = map(level, 0, range, 1, 0.1);
+  try {
+    // Randomize
+    joint = body[random(joints)];
+    // Constrain the level
+    level = constrain(level, 0, config.range);
+    scl = map(level, 0, config.range, 1, 0.1);
 
-  // Resize crop
-  resize();
+    // Resize crop
+    resize();
 
-  // Update mid-point
-  cropped.x = joint.x * I2O;
-  cropped.y = joint.y * I2O;
-  recenter();
+    // Update mid-point
+    cropped.x = joint.x * I2O;
+    cropped.y = joint.y * I2O;
+    recenter();
+  } catch (e) {
+    console.log("No body.");
+  }
 
   // Auto-freeze
-  if(a_freeze) display();
+  if (config.a_freeze) display();
 }
 
 function recenter() {
@@ -209,7 +201,29 @@ function recenter() {
 
 function display() {
   background('white');
-  if(crop) image(output, wc.x, wc.y, width, height, cropped.x, cropped.y, cropped.w, cropped.h);
+  if (config.crop) image(output, wc.x, wc.y, width, height, cropped.x, cropped.y, cropped.w, cropped.h);
   else image(output, wc.x, wc.y, width, height);
+}
 
+// Show intro text
+let timeouts = [];
+let lines = [];
+function showIntro() {
+  lines = selectAll("p");
+  for (let l in lines) {
+    let line = lines[l];
+    let interval = l < lines.length - 1 ? 3000 : 5000;
+    timeouts.push(setTimeout(() => {
+      //line.show();
+      line.style("display", "inline");
+    }, interval * l));
+  }
+}
+
+// Hide intro text
+function hideIntro() {
+  for(let line of lines) line.hide();
+  for(let timeout of timeouts) {
+    clearTimeout(timeout);
+  }
 }

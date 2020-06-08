@@ -33,17 +33,15 @@ function getStream(cb) {
           analyser.getByteFrequencyData(bins);
 
           // Re-calculate volume every time
-          if(completed) {
-            sum = 0;
-            console.log("sum", tested);
-          }
+          if(completed) sum = 0;
+
           let length = bins.length;
           // Add up amp for each frequency bin
           for (let bin of bins) {
             sum += bin / 256;
           }
 
-          console.log("LEVEL: ", sum / bins.length);
+          //console.log("LEVEL: ", sum / bins.length);
           if (completed) socket.emit("data", sum / bins.length);
         };
 
@@ -53,8 +51,10 @@ function getStream(cb) {
       // Error callback
       .catch(function(err) {
         console.log("The following getUserMedia error occured: " + err);
+        socket.emit('no mic');
       });
   } else {
     console.log("getUserMedia not supported on your browser!");
+    socket.emit('no mic');
   }
 }

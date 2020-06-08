@@ -5,3 +5,25 @@ html, body {
 canvas {
   display: block;
 }
+
+#intro {
+  position: absolute;
+  padding: 0 20px;
+  top: 0px;
+  left: 0px;
+  z-index: 5;
+  font-size: 6em;
+  width: 1240px;
+  height: 720px;
+  font-family: sans-serif;
+}
+
+#intro p {
+  display: none;
+  color: white;
+}
+
+p span {
+  text-decoration: underline;
+  font
+}
