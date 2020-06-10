@@ -47,7 +47,7 @@ function draw() {
       // Give up after 30 seconds
       if (millis() > 30000) {
         background(0);
-        intro.html("Nothing?<br><br>Reload to try again.<br><br>Use Safari on iOS.");
+        intro.html("Nothing?<br><br>Reload to try again. Use Safari on iOS.");
       } else if (sum > 5000) {
         console.log("Mic works!");
         tested = true;
