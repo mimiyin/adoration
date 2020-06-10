@@ -1,12 +1,15 @@
 // Open and connect input socket
-let socket = io("/input");
+let socket = io("/voice");
 let audio;
 let sum = 0;
-let tested = true;
+let completed = true;
 
 // Listen for confirmation of connection
 socket.on("connect", () => {
   console.log("Connected");
+
+  // Log in with the conductor
+  socket.emit('data', 0);
 });
 
 function setup() {
@@ -14,7 +17,14 @@ function setup() {
 
   // Get the stream
   getStream(()=>{
-    audio.enabled = true;
+    // Listen for the start status
+    socket.on('start', _start => {
+      start = _start;
+      audio.enabled = start;
+      background(0);
+    });
+
+    socket.emit('get start');
   });
 
   // Styling

@@ -29,18 +29,21 @@ let server = require("http")
 
 
 // Server side data
-let start = false;
+let astart = false;
+let vstart = false;
 let config;
 
 // Create socket connection
 let io = require("socket.io").listen(server);
-// Clients in the input namespace
-let inputs = io.of("/input");
-// Clients in the output namespace
+// Audience audiences
+let audience = io.of("/audience");
+// Usher
+let ushers = io.of("/usher");
+// NiNi, video performer
 let performers = io.of("/performer");
-// Clients in the output namespace
+// Conductor's voice
 let voices = io.of("/voice");
-// Clients in the output namespace
+// Conductor
 let conductors = io.of("/conductor");
 
 // Listen for output clients to connect
@@ -60,14 +63,20 @@ voices.on("connection", socket => {
   // Give start status
   socket.on("get start", () => {
     // Sent recording status
-    socket.emit('start', !start);
+    socket.emit('start', vstart);
   });
 
   // Listen for data messages from this client
   socket.on("data", data => {
     // Data comes in as whatever was sent, including objects
     //console.log("Received: 'data' " + data);
+    let message = {
+      id: socket.id,
+      data: data
+    };
+
     performers.emit("data", data);
+    conductors.emit("message", message);
   });
 
   // Listen for this output client to disconnect
@@ -83,24 +92,20 @@ conductors.on("connection", socket => {
   // Give start status
   socket.on("get start", () => {
     // Sent recording status
-    socket.emit('start', start);
-  });
-
-  // Give connected Clients
-  socket.on("get user count", () => {
-    updateInputCount();
+    socket.emit('start', vstart);
   });
 
   // Pass on request to record
-  socket.on("start", _start => {
-    console.log("start!");
-    start = _start;
-    // Turn on audience
-    inputs.emit("start", start);
+  socket.on("start", start => {
+    console.log("Voice start?", start);
+
+    // Store start status
+    vstart = start;
+
     // Turn on conductors
-    conductors.emit("start", start);
-    // Turn off voice performer
-    voices.emit("start", !start);
+    conductors.emit("start", vstart);
+    // Turn on voice performer
+    voices.emit("start", vstart);
   });
 
   // Communicate with performer
@@ -120,10 +125,10 @@ conductors.on("connection", socket => {
   });
 });
 
-// Listen for input clients to connect
-inputs.on("connection", socket => {
-  console.log("An input client connected: " + socket.id);
-  updateInputCount();
+// Listen for audience clients to connect
+audience.on("connection", socket => {
+  console.log("An audience client connected: " + socket.id);
+  updateAudienceCount();
 
   // Failed to turn on mic
   socket.on("no mic", () => {
@@ -136,7 +141,7 @@ inputs.on("connection", socket => {
     console.log(socket.id + " successfully completed mic test.");
 
     // Sent recording status
-    socket.emit('start', start);
+    socket.emit('start', astart);
   });
 
   // Listen for data messages from this client
@@ -150,25 +155,57 @@ inputs.on("connection", socket => {
       data: data
     };
 
-    // Send it to all of the output clients
-    conductors.emit("message", message);
-    performers.emit("data", data);
+    // Send it to usher clients
+    ushers.emit("message", message);
   });
 
-  // Listen for this input client to disconnect
+  // Listen for this audience client to disconnect
   // Tell all of the output clients this client disconnected
   socket.on("disconnect", () => {
-    console.log("An input client has disconnected " + socket.id);
+    console.log("An audience client has disconnected " + socket.id);
     conductors.emit("disconnected", socket.id);
-    updateInputCount();
+    updateAudienceCount();
   });
 });
 
-// Get input count
-function updateInputCount(){
-  let inputSockets = inputs.sockets;
-  let count = Object.keys(inputSockets).length;
-  for(let s in inputSockets) console.log(s);
+// Listen for output clients to connect
+ushers.on("connection", socket => {
+  console.log("An usher client connected: " + socket.id);
+
+  // Give start status
+  socket.on("get start", () => {
+    // Sent recording status
+    socket.emit('start', astart);
+  });
+
+  // Give connected Clients
+  socket.on("get user count", () => {
+    updateAudienceCount();
+  });
+
+  // Pass on request to record
+  socket.on("start", start => {
+    console.log("Audience start?", start);
+
+    // Store audience start status
+    astart = start;
+    // Turn on audience
+    audience.emit("start", astart);
+    // Turn on other ushers
+    ushers.emit("start", astart);
+  });
+
+  // Listen for this output client to disconnect
+  socket.on("disconnect", () => {
+    console.log("An usher client has disconnected " + socket.id);
+  });
+});
+
+// Get audience count
+function updateAudienceCount(){
+  let audienceSockets = audience.sockets;
+  let count = Object.keys(audienceSockets).length;
+  for(let s in audienceSockets) console.log(s);
   console.log("count", count);
   conductors.emit("user count", count);
 }

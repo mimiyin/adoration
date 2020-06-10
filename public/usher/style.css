@@ -1,0 +1,19 @@
+body {
+  margin : 0px;
+  width: 100vw;
+  height: 100vh;
+}
+
+#status {
+  margin: 0px;
+  font-family: sans-serif;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  display: flex;
+  flex-direction: column;
+}
+
+p {
+  margin: 1em;
+}

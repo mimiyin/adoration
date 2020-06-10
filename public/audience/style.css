@@ -1,0 +1,20 @@
+body {
+  margin : 0px;
+}
+
+canvas, div {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100vw;
+  height: 100vh;
+}
+
+div {
+  padding: 10px 30px;
+  opacity: 0.5;
+  color: white;
+  font-family: sans-serif;
+  font-size: 10vw;
+  z-index: 5;
+}
