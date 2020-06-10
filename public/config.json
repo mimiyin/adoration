@@ -17,7 +17,7 @@
   ],
   "modes": [{
       "rate": 100,
-      "range": 1.0,
+      "range": 0.5,
       "crop": true,
       "m_freeze": false,
       "a_freeze": false
@@ -30,7 +30,7 @@
       "a_freeze": false
     },
     {
-      "rate": 100,
+      "rate": 50,
       "range": 0.5,
       "crop": true,
       "m_freeze": false,
@@ -41,11 +41,12 @@
       "range": 0.5,
       "crop": true,
       "m_freeze": false,
-      "a_freeze": true
+      "a_freeze": true,
+      "mute" : true
     },
     {
-      "rate": 500,
-      "range": 0.5,
+      "rate": 100,
+      "range": 0.2,
       "crop": true,
       "m_freeze": false,
       "a_freeze": false

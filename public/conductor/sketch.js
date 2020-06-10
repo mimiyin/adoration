@@ -137,7 +137,7 @@ function draw() {
 
     // Negate data after a second
     if (config.mute || !config.start || millis() - user.ts > 1000) {
-      data = 0;
+      vol_mult = 0;
       // Kill the sound
       if (sound) users[u].sound.setVolume(0);
       // Update stored data
@@ -163,7 +163,7 @@ function draw() {
 function keyPressed() {
   // Mode change?
   try {
-    let settings = modes[key];
+    let settings = modes[key-1];
     if (settings) {
       for (let s in settings) {
         let setting = settings[s];
@@ -228,7 +228,7 @@ function keyPressed() {
   }
 
   // Constrain the rate
-  config.rate = constrain(config.rate, 100, 10000);
+  config.rate = constrain(config.rate, 10, 10000);
 
   // Constrain the range
   config.range = constrain(config.range, 0, 1);
