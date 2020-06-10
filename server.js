@@ -4,17 +4,17 @@ let express = require("express");
 let app = express();
 
 //Redirect http => to https
-// app.use(
-//     function(req, res, next) {
-//       console.log("Are you secure?", req.headers['x-forwarded-proto']);
-//       console.log("Hi there.", req.subdomains, req.hostname, req.originalUrl);
-//       if (req.headers['x-forwarded-proto'] != 'https') {
-//         console.log('Not secure.');
-//         res.redirect(301, 'https://' + req.hostname + req.originalUrl);
-//       } else {
-//         next();
-//       }
-//     });
+app.use(
+    function(req, res, next) {
+      console.log("Are you secure?", req.headers['x-forwarded-proto']);
+      console.log("Hi there.", req.subdomains, req.hostname, req.originalUrl);
+      if (req.headers['x-forwarded-proto'] != 'https') {
+        console.log('Not secure.');
+        res.redirect(301, 'https://' + req.hostname + req.originalUrl);
+      } else {
+        next();
+      }
+    });
 
 // Point to static folder
 app.use(express.static('public'));
