@@ -3,6 +3,8 @@
     "max" : 100,
     "mute": false,
     "intro": false,
+    "end": false,
+    "curtain" : false,
     "start": false,
     "crop": false,
     "m_freeze": false,
@@ -15,26 +17,38 @@
   "pckeys": [
     "rate", "range", "crop", "m_freeze", "a_freeze"
   ],
-  "modes": [{
+  "modes": [
+    {
+        "rate": 100,
+        "range": 1.0,
+        "crop": false,
+        "m_freeze": false,
+        "a_freeze": false,
+        "mute" : true
+      },
+      {
       "rate": 100,
       "range": 0.5,
       "crop": true,
       "m_freeze": false,
-      "a_freeze": false
+      "a_freeze": false,
+      "mute" : false
     },
     {
       "rate": 500,
       "range": 0.2,
       "crop": true,
       "m_freeze": false,
-      "a_freeze": false
+      "a_freeze": false,
+      "mute" : false
     },
     {
       "rate": 50,
-      "range": 0.5,
+      "range": 0.875,
       "crop": true,
       "m_freeze": false,
-      "a_freeze": false
+      "a_freeze": false,
+      "mute" : false
     },
     {
       "rate": 3000,
@@ -49,6 +63,7 @@
       "range": 0.2,
       "crop": true,
       "m_freeze": false,
-      "a_freeze": false
+      "a_freeze": false,
+      "mute" : false
     }]
 }

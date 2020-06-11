@@ -34,8 +34,8 @@ let ejoint = "leftEye";
 // Video stream constraints
 let ocs = {
   video: {
-    width: 1280,
-    height: 720
+    width: 1920,
+    height: 1080
   },
   audio: false
 };
@@ -71,7 +71,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(1280, 720);
+  createCanvas(ocs.video.width, ocs.video.height);
 
   // Calculate center of window
   wc = {
@@ -83,10 +83,8 @@ function setup() {
   H2W = height / width;
 
   // Set up output video
-  output = createCapture(ocs, stream => {
-    console.log("GOT OUTPUT STREAM");
-  });
-
+  output = createVideo("https://cysm.s3.amazonaws.com/cysm-day-1.mp4");
+  output.loop();
   output.hide();
 
   // Set up input video

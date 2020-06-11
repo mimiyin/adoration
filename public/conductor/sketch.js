@@ -8,8 +8,12 @@ let modes;
 let config;
 let pckeys;
 
+// Mode
+let mode = 0;
+
 // Sound file
 let source;
+
 
 socket.on("connect", () => {
   console.log("Connected!");
@@ -69,7 +73,7 @@ function setup() {
     // If new user
     if (!(id in users)) {
       // Max out at 100
-      if(num >=config.max) return;
+      if (num >= config.max) return;
 
       // Create user
       users[id] = {
@@ -91,7 +95,7 @@ function setup() {
           delete users[id];
         }
       }
-    } else if(users[id]){
+    } else if (users[id]) {
       users[id].data = data;
       if (data > 0) users[id].ts = millis();
     }
@@ -163,12 +167,13 @@ function draw() {
 function keyPressed() {
   // Mode change?
   try {
-    let settings = modes[key-1];
+    let settings = modes[key];
     if (settings) {
       for (let s in settings) {
         let setting = settings[s];
         config[s] = setting;
       }
+      mode = key;
       console.log("MODE: ", key, config);
     }
   } catch (e) {
@@ -210,6 +215,13 @@ function keyPressed() {
       config.intro = !config.intro;
       socket.emit("intro", config.intro);
       break;
+    case "e":
+      config.end = !config.end;
+      socket.emit("end", config.end);
+      config.start = false;
+      config.m_freeze = false;
+      config.a_freeze = true;
+      break;
   }
 
   switch (keyCode) {
@@ -225,6 +237,11 @@ function keyPressed() {
     case DOWN_ARROW:
       config.range -= 0.1;
       break;
+    case ESCAPE:
+      config.curtain = !config.curtain;
+      socket.emit("curtain", config.curtain);
+      break;
+
   }
 
   // Constrain the rate
@@ -264,7 +281,9 @@ function toggle() {
 
 function status() {
   document.getElementById("intro").innerHTML = "INTRO: " + config.intro;
-  document.getElementById("num").innerHTML = "NUM: " + num;
+  document.getElementById("end").innerHTML = "END: " + config.end;
+  document.getElementById("curtain").innerHTML = "CURTAIN: " + config.curtain;
+  document.getElementById("mode").innerHTML = "MODE: " + mode;
   document.getElementById("record").innerHTML = config.start ?
     "STARTED" :
     "STOPPED";

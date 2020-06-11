@@ -33,6 +33,9 @@ function setup() {
 }
 
 function draw() {
+  // Wipe out the background every 10 seconds
+  if(frameCount%60*10 == 0) background(0);
+
   let sz = map(sum, 0.1, 1, 0, 5);
   fill(255, 2);
   ellipse(random(width), random(height), sz, sz);
