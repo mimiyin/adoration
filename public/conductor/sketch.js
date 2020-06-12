@@ -218,7 +218,8 @@ function keyPressed() {
     case "e":
       config.end = !config.end;
       socket.emit("end", config.end);
-      config.start = false;
+      // Toggle start
+      toggle(false);
       config.m_freeze = false;
       config.a_freeze = true;
       break;
@@ -267,9 +268,10 @@ function emit(mode) {
   socket.emit("config", pconfig);
 }
 
-function toggle() {
+function toggle(state) {
   // Toggle recording
-  config.start = !config.start;
+  if(state) config.start = state;
+  else config.start = !config.start;
   console.log("START", config.start);
 
   // Tell everyone

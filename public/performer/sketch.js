@@ -71,7 +71,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(1280, 720);
+  createCanvas(ocs.video.width, ocs.video.height);
 
   // Calculate center of window
   wc = {
