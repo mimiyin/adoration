@@ -172,7 +172,11 @@ audience.on("connection", socket => {
 
     // Send it to usher clients
     ushers.emit("message", message);
-    conductors.emit("message", message);
+
+    // Send to conductors 20 seconds later
+    setTimeout(()=>{
+      conductors.emit("message", message);
+    }, 20*1000);
   });
 
   // Listen for this audience client to disconnect

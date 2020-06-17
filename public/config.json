@@ -1,8 +1,9 @@
 {
   "config": {
     "max" : 100,
-    "a_mute": true,
     "mute": false,
+    "v_mute" : false,
+    "a_mute": false,
     "intro": false,
     "end": false,
     "curtain" : false,
@@ -25,7 +26,6 @@
         "crop": false,
         "m_freeze": false,
         "a_freeze": false,
-        "a_mute": true,
         "mute": false
       },
       {
@@ -34,7 +34,6 @@
       "crop": true,
       "m_freeze": false,
       "a_freeze": false,
-      "a_mute": false,
       "mute": false
     },
     {
@@ -43,7 +42,6 @@
       "crop": true,
       "m_freeze": false,
       "a_freeze": false,
-      "a_mute": false,
       "mute": false
     },
     {
@@ -52,7 +50,6 @@
       "crop": true,
       "m_freeze": false,
       "a_freeze": false,
-      "a_mute": false,
       "mute": false
     },
     {
@@ -61,7 +58,6 @@
       "crop": true,
       "m_freeze": false,
       "a_freeze": true,
-      "a_mute": true,
       "mute" : true
     },
     {
@@ -70,7 +66,6 @@
       "crop": true,
       "m_freeze": false,
       "a_freeze": false,
-      "a_mute": false,
       "mute": false
     }
   ]
