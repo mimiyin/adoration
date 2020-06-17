@@ -57,6 +57,7 @@ function setup() {
   // Receive message from server
   socket.on("message", function(message) {
     // Get id and data from message
+    let type = message.type;
     let id = message.id;
     let data = message.data;
 
@@ -77,9 +78,10 @@ function setup() {
 
       // Create user
       users[id] = {
-        sound: null,
+        type: type,
         data: data,
-        ts: millis()
+        ts: millis(),
+        sound: null
       };
 
       // Try to load sound
@@ -135,12 +137,22 @@ function draw() {
 
     // Get user's data
     let user = users[u];
-    let sound = user.sound;
+    let type = user.type;
     let data = user.data;
     let ts = user.ts;
+    let sound = user.sound;
 
     // Negate data after a second
-    if (config.mute || !config.start || millis() - user.ts > 1000) {
+    let mute_all = config.mute;
+    let v_mute = !config.start && type == "voice";
+    let a_mute = config.amute && type == "audience";
+
+    // Calculate if more than 1 second has elapsed
+    function its_been_a_while(){
+      return millis() - user.ts > 1000;
+    }
+
+    if (mute_all || v_mute || a_mute || its_been_a_while()) {
       vol_mult = 0;
       // Kill the sound
       if (sound) users[u].sound.setVolume(0);
@@ -154,7 +166,8 @@ function draw() {
 
     // Visualize the data
     let ydata = data * 50;
-    stroke(hue, 100, 100);
+    if(type == "voice") stroke("black");
+    else stroke(hue, 100, 100);
     line(x, y, x, y + ydata);
     hue += 30;
     hue %= 100;
@@ -187,6 +200,9 @@ function keyPressed() {
     case "m":
       config.mute = !config.mute;
       break;
+      case "n":
+        config.a_mute = !config.a_mute;
+        break;
     case "]":
       config.vol_mult += 0.1;
       config.vol_mult = min(10, config.vol_mult);
@@ -296,6 +312,7 @@ function status() {
   document.getElementById("range").innerHTML =
     "RANGE: " + nfs(config.range, 0, 1);
   document.getElementById("mute").innerHTML = config.mute ? "MUTED" : "UNMUTED";
+  document.getElementById("amute").innerHTML = config.a_mute ? "A_MUTED" : "A_UNMUTED";
   document.getElementById("volume").innerHTML =
     "VOLUME: " + nfs(config.vol_mult, 0, 1);
 }

@@ -74,6 +74,7 @@ voices.on("connection", socket => {
     // Data comes in as whatever was sent, including objects
     //console.log("Received: 'data' " + data);
     let message = {
+      type: "voice",
       id: socket.id,
       data: data
     };
@@ -164,12 +165,14 @@ audience.on("connection", socket => {
 
     // Package up data with socket's id
     let message = {
+      type: "audience",
       id: socket.id,
       data: data
     };
 
     // Send it to usher clients
     ushers.emit("message", message);
+    conductors.emit("message", message);
   });
 
   // Listen for this audience client to disconnect

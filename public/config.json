@@ -1,6 +1,7 @@
 {
   "config": {
     "max" : 100,
+    "a_mute": true,
     "mute": false,
     "intro": false,
     "end": false,
@@ -24,7 +25,8 @@
         "crop": false,
         "m_freeze": false,
         "a_freeze": false,
-        "mute" : true
+        "a_mute": true,
+        "mute": false
       },
       {
       "rate": 100,
@@ -32,7 +34,8 @@
       "crop": true,
       "m_freeze": false,
       "a_freeze": false,
-      "mute" : false
+      "a_mute": false,
+      "mute": false
     },
     {
       "rate": 500,
@@ -40,7 +43,8 @@
       "crop": true,
       "m_freeze": false,
       "a_freeze": false,
-      "mute" : false
+      "a_mute": false,
+      "mute": false
     },
     {
       "rate": 50,
@@ -48,7 +52,8 @@
       "crop": true,
       "m_freeze": false,
       "a_freeze": false,
-      "mute" : false
+      "a_mute": false,
+      "mute": false
     },
     {
       "rate": 3000,
@@ -56,6 +61,7 @@
       "crop": true,
       "m_freeze": false,
       "a_freeze": true,
+      "a_mute": true,
       "mute" : true
     },
     {
@@ -64,6 +70,8 @@
       "crop": true,
       "m_freeze": false,
       "a_freeze": false,
-      "mute" : false
-    }]
+      "a_mute": false,
+      "mute": false
+    }
+  ]
 }

@@ -133,6 +133,8 @@ function setup() {
     else hideCurtain();
   });
 
+  // No cursor
+  noCursor();
 }
 
 function modelReady() {
