@@ -172,12 +172,12 @@ audience.on("connection", socket => {
 
     // Send it to usher clients
     ushers.emit("message", message);
-    let delay = Math.floor(Math.random()*5);
 
     // Send to conductors 20 seconds later
+    let delay = Math.floor(Math.random() * 5) * 20 * 1000;
     setTimeout(()=>{
       conductors.emit("message", message);
-    }, Math.floor(Math.random()*5)*1000);
+    }, delay);
   });
 
   // Listen for this audience client to disconnect
