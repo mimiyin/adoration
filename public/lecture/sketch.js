@@ -1,5 +1,6 @@
 let output;
 let lines;
+let l = 0;
 let intro;
 
 function preload() {
@@ -10,7 +11,7 @@ function setup() {
   noCanvas();
 
   // Grab intro div
-  intro = select("#intro");
+  intro = select("span");
 
   // Set up output video
   output = createVideo("https://cysm.s3.amazonaws.com/cysm-day-1.mp4");
@@ -23,12 +24,14 @@ function draw() {
 }
 
 function keyPressed() {
-  if(keyCode == DELETE) intro.html('');
+  if(keyCode == BACKSPACE) intro.html('');
   else next();
 }
 
 
 function next() {
+  if(l >= lines.length) return;
   let line = lines[l];
   intro.html(line);
+  l++;
 }

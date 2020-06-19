@@ -9,18 +9,19 @@ html, body {
   top: 0px;
   left: 0px;
   z-index: 5;
-  font-size: 6em;
-  width: 1240px;
-  height: 720px;
+  highlight: black;
+  width: 1920px;
+  height: 1080px;
   font-family: sans-serif;
+  display: flex;
+  text-align: center;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
 }
 
-#intro p {
-  display: none;
+span {
+  background: black;
   color: white;
-}
-
-p span {
-  text-decoration: underline;
-  font
+  font-size: 8em;
 }

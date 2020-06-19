@@ -176,7 +176,7 @@ audience.on("connection", socket => {
     // Send to conductors 20 seconds later
     setTimeout(()=>{
       conductors.emit("message", message);
-    }, 20*1000);
+    }, Math.floor(Math.random(20, 25))*1000);
   });
 
   // Listen for this audience client to disconnect
