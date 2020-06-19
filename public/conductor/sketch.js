@@ -144,8 +144,8 @@ function draw() {
 
     // Negate data after a second
     let mute_all = config.mute;
-    let v_mute = !config.start && type == "voice";
-    let a_mute = config.amute && type == "audience";
+    let v_mute = !config.v_mute && type == "voice";
+    let a_mute = config.a_mute && type == "audience";
 
     // Calculate if more than 1 second has elapsed
     function its_been_a_while() {
@@ -315,7 +315,7 @@ function status() {
   document.getElementById("range").innerHTML =
     "RANGE: " + nfs(config.range, 0, 1);
   document.getElementById("mute").innerHTML = config.mute ? "MUTED" : "UNMUTED";
-  document.getElementById("vmute").innerHTML = config.a_mute ? "V_MUTED" : "V_UNMUTED";
+  document.getElementById("vmute").innerHTML = config.v_mute ? "V_MUTED" : "V_UNMUTED";
   document.getElementById("amute").innerHTML = config.a_mute ? "A_MUTED" : "A_UNMUTED";
   document.getElementById("volume").innerHTML =
     "VOLUME: " + nfs(config.vol_mult, 0, 1);
