@@ -63,16 +63,6 @@ performers.on("connection", socket => {
 voices.on("connection", socket => {
   console.log("A voice client connected: " + socket.id);
 
-  // Package up data with socket's id
-  let message = {
-    type: "voice",
-    id: socket.id,
-    data: null
-  };
-
-  // Send it to conductor clients
-  conductors.emit("connected", message);
-
   // Give start status
   socket.on("get start", () => {
     // Sent recording status
@@ -158,16 +148,6 @@ conductors.on("connection", socket => {
 audience.on("connection", socket => {
   console.log("An audience client connected: " + socket.id);
 
-  // Package up data with socket's id
-  let message = {
-    type: "audience",
-    id: socket.id,
-    data: null
-  };
-
-  // Send connection message
-  conductors.emit("connected", message);
-
   // Assign random delay value
   socket.delay = Math.floor(Math.random()*5);
 
@@ -194,7 +174,7 @@ audience.on("connection", socket => {
     let message = {
       type: "audience",
       id: socket.id,
-      data: data
+      data: 0
     };
 
     // Send it to usher clients

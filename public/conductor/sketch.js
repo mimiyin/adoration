@@ -36,6 +36,9 @@ function createUser(message) {
     // Max out at 100
     if (num >= config.max) return;
 
+    // Get user count
+    socket.emit('get user count');
+
     // Create user
     users[id] = {
       type: type,
@@ -105,17 +108,6 @@ function setup() {
 
   // Receive message from server
   socket.on("message", function(message) {
-    createUser(message);
-  });
-
-  // Add connected users
-  socket.on("connected", message => {
-    console.log(message.id + " connected.");
-
-    // Update user count
-    socket.emit("get user count");
-
-    // Create new user
     createUser(message);
   });
 
