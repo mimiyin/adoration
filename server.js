@@ -148,9 +148,6 @@ conductors.on("connection", socket => {
 audience.on("connection", socket => {
   console.log("An audience client connected: " + socket.id);
 
-  // Assign random delay value
-  socket.delay = Math.floor(Math.random()*5);
-
   // Failed to turn on mic
   socket.on("no mic", () => {
     console.log(socket.id + " has no mic.");
@@ -180,13 +177,11 @@ audience.on("connection", socket => {
     // Send it to usher clients
     ushers.emit("message", message);
 
-    ushers.emit("wtf", data);
-
     // Send to conductors 20 seconds later
     //let delay = Math.floor(Math.random() * 5) * 20 * 1000;
     setTimeout(()=>{
       conductors.emit("message", message);
-    }, socket.delay * 1000);
+    }, 5 * 1000);
   });
 
   // Listen for this audience client to disconnect
