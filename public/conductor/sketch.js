@@ -138,10 +138,6 @@ function draw() {
     x = 0;
   }
 
-  // Normalize the volume if there's more than 1 user
-  let vol_mult = parseFloat(config.vol_mult); //num > 1 ? (config.vol_mult / (1 + (num/config.max))) : config.vol_mult;
-  console.log(vol_mult);
-
   let y = 0;
   let hue = 0;
   for (let u in users) {
