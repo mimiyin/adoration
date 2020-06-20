@@ -62,7 +62,6 @@ function createUser(message) {
   } else if (users[id]) {
     users[id].data = data;
     if (data > 0) users[id].ts = millis();
-    console.log("DATA", data, users[id].ts);
   }
 }
 
