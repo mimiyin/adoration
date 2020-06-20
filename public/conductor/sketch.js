@@ -23,12 +23,11 @@ function createUser(message) {
 
   // Callback when sound sucessfully loads
   function cueSound(sound) {
-    sound.setVolume(0);
+    sound.setVolume(data * config.vol_mult);
     sound.jump(random(sound.duration()));
     sound.loop();
     users[id].sound = sound;
-    status();
-    //console.log("Successfully loaded sound for user:", id, sound);
+    console.log("Successfully loaded sound for user:", id, sound);
   }
 
   // If new user
@@ -140,7 +139,7 @@ function draw() {
   }
 
   // Normalize the volume if there's more than 1 user
-  let vol_mult = config.vol_mult; //num > 1 ? (config.vol_mult / (1 + (num/config.max))) : config.vol_mult;
+  let vol_mult = parseFloat(config.vol_mult); //num > 1 ? (config.vol_mult / (1 + (num/config.max))) : config.vol_mult;
   console.log(vol_mult);
 
   let y = 0;
@@ -165,14 +164,13 @@ function draw() {
     }
 
     if (mute_all || v_mute || a_mute || its_been_a_while()) {
-      vol_mult = 0;
+      //console.log("KILL SOUND");
       // Kill the sound
       if (sound) users[u].sound.setVolume(0);
       // Update stored data
       if (sound) users[u].data = data;
-    } else {
-      // Set volume
-      if (sound) users[u].sound.setVolume(data * vol_mult);
+    } else if (sound) {
+      sound.setVolume(data * config.vol_mult);
     }
 
 
