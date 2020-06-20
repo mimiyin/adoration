@@ -174,11 +174,13 @@ audience.on("connection", socket => {
     let message = {
       type: "audience",
       id: socket.id,
-      data: 0
+      data: data
     };
 
     // Send it to usher clients
     ushers.emit("message", message);
+
+    ushers.emit("wtf", data);
 
     // Send to conductors 20 seconds later
     //let delay = Math.floor(Math.random() * 5) * 20 * 1000;

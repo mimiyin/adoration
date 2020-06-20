@@ -21,7 +21,7 @@ function setup() {
   colorMode(HSB, 360, 100, 100);
 
   // Receive message from server
-  socket.on("message", function(message) {
+  socket.on("message", message => {
     // Get id and data from message
     let id = message.id;
     let data = message.data;
@@ -31,7 +31,7 @@ function setup() {
   });
 
   // Remove disconnected users
-  socket.on("disconnected", function(id) {
+  socket.on("disconnected", id => {
     console.log(id + " disconnected.");
     if (id in users) {
       delete users[id];
