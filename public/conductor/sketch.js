@@ -144,7 +144,7 @@ function draw() {
 
     // Negate data after a second
     let mute_all = config.mute;
-    let v_mute = !config.v_mute && type == "voice";
+    let v_mute = config.v_mute && type == "voice";
     let a_mute = config.a_mute && type == "audience";
 
     // Calculate if more than 1 second has elapsed
