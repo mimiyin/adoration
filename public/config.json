@@ -2,7 +2,7 @@
   "config": {
     "max" : 100,
     "mute": false,
-    "v_mute" : false,
+    "v_mute" : true,
     "a_mute": false,
     "intro": false,
     "end": false,
@@ -58,7 +58,7 @@
       "crop": true,
       "m_freeze": false,
       "a_freeze": true,
-      "mute" : true
+      "mute" : false
     },
     {
       "rate": 100,

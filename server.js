@@ -63,6 +63,16 @@ performers.on("connection", socket => {
 voices.on("connection", socket => {
   console.log("A voice client connected: " + socket.id);
 
+  // Package up data with socket's id
+  let message = {
+    type: "voice",
+    id: socket.id,
+    data: null
+  };
+
+  // Send it to conductor clients
+  conductors.emit("connected", message);
+
   // Give start status
   socket.on("get start", () => {
     // Sent recording status
@@ -112,6 +122,11 @@ conductors.on("connection", socket => {
     voices.emit("start", vstart);
   });
 
+  // Give connected Clients
+  socket.on("get user count", () => {
+    updateAudienceCount();
+  });
+
   // Communicate with performer
   socket.on("config", _config => {
     config = _config;
@@ -142,7 +157,19 @@ conductors.on("connection", socket => {
 // Listen for audience clients to connect
 audience.on("connection", socket => {
   console.log("An audience client connected: " + socket.id);
-  updateAudienceCount();
+
+  // Package up data with socket's id
+  let message = {
+    type: "audience",
+    id: socket.id,
+    data: null
+  };
+
+  // Send connection message
+  conductors.emit("connected", message);
+
+  // Assign random delay value
+  socket.delay = Math.floor(Math.random()*5);
 
   // Failed to turn on mic
   socket.on("no mic", () => {
@@ -177,7 +204,7 @@ audience.on("connection", socket => {
     //let delay = Math.floor(Math.random() * 5) * 20 * 1000;
     setTimeout(()=>{
       conductors.emit("message", message);
-    }, 20 * 1000);
+    }, socket.delay * 1000);
   });
 
   // Listen for this audience client to disconnect
@@ -197,11 +224,6 @@ ushers.on("connection", socket => {
   socket.on("get start", () => {
     // Sent recording status
     socket.emit('start', astart);
-  });
-
-  // Give connected Clients
-  socket.on("get user count", () => {
-    updateAudienceCount();
   });
 
   // Pass on request to record
@@ -227,6 +249,6 @@ function updateAudienceCount() {
   let audienceSockets = audience.sockets;
   let count = Object.keys(audienceSockets).length;
   for (let s in audienceSockets) console.log(s);
-  console.log("count", count);
+  console.log("Audience Count:", count);
   conductors.emit("user count", count);
 }

@@ -14,6 +14,54 @@ let mode = 0;
 // Sound file
 let source;
 
+function createUser(message) {
+
+  // Get id and data from message
+  let type = message.type;
+  let id = message.id;
+  let data = message.data;
+
+  // Callback when sound sucessfully loads
+  function cueSound(sound) {
+    sound.setVolume(0);
+    sound.jump(random(sound.duration()));
+    sound.loop();
+    users[id].sound = sound;
+    status();
+    //console.log("Successfully loaded sound for user:", id, sound);
+  }
+
+  // If new user
+  if (!(id in users)) {
+    // Max out at 100
+    if (num >= config.max) return;
+
+    // Create user
+    users[id] = {
+      type: type,
+      data: data,
+      ts: millis(),
+      sound: null
+    };
+
+    // Try to load sound
+    try {
+      loadSound(config.sound, cueSound);
+    } catch (e) {
+      console.log("Sound failed to load.", e);
+      try {
+        loadSound("https://cysm.s3.amazonaws.com/yasb.wav", cueSound);
+      } catch (e) {
+        console.log("Sound failed to load from S3.", e);
+        console.log("Giving up on ", id);
+        delete users[id];
+      }
+    }
+  } else if (users[id]) {
+    users[id].data = data;
+    if (data > 0) users[id].ts = millis();
+  }
+}
 
 socket.on("connect", () => {
   console.log("Connected!");
@@ -42,6 +90,7 @@ function preload() {
     // Get user count from server
     socket.on("user count", count => {
       num = count;
+      console.log("NUM:", num);
       status();
     });
     socket.emit("get user count");
@@ -56,55 +105,22 @@ function setup() {
 
   // Receive message from server
   socket.on("message", function(message) {
-    // Get id and data from message
-    let type = message.type;
-    let id = message.id;
-    let data = message.data;
+    createUser(message);
+  });
 
-    // Callback when sound sucessfully loads
-    function createUser(sound) {
-      console.log("Successfully loaded sound for user:", id);
-      sound.setVolume(0);
-      sound.jump(random(sound.duration()));
-      sound.loop();
-      users[id].sound = sound;
-      status();
-    }
+  // Add connected users
+  socket.on("connected", message => {
+    console.log(message.id + " connected.");
 
-    // If new user
-    if (!(id in users)) {
-      // Max out at 100
-      if (num >= config.max) return;
+    // Update user count
+    socket.emit("get user count");
 
-      // Create user
-      users[id] = {
-        type: type,
-        data: data,
-        ts: millis(),
-        sound: null
-      };
-
-      // Try to load sound
-      try {
-        loadSound(config.sound, createUser);
-      } catch (e) {
-        console.log("Sound failed to load.", e);
-        try {
-          loadSound("https://cysm.s3.amazonaws.com/yasb.wav", createUser);
-        } catch (e) {
-          console.log("Sound failed to load from S3.", e);
-          console.log("Giving up on ", id);
-          delete users[id];
-        }
-      }
-    } else if (users[id]) {
-      users[id].data = data;
-      if (data > 0) users[id].ts = millis();
-    }
+    // Create new user
+    createUser(message);
   });
 
   // Remove disconnected users
-  socket.on("disconnected", function(id) {
+  socket.on("disconnected", id => {
     console.log(id + " disconnected.");
     if (id in users) {
       users[id].sound.setVolume(0);
@@ -113,6 +129,9 @@ function setup() {
       delete users[id];
       status();
     }
+
+    // Update user count
+    socket.emit("get user count");
   });
 }
 
@@ -129,7 +148,8 @@ function draw() {
   }
 
   // Normalize the volume if there's more than 1 user
-  let vol_mult = num > 1 ? config.vol_mult / num : config.vol_mult;
+  let vol_mult = config.vol_mult; //num > 1 ? (config.vol_mult / (1 + (num/config.max))) : config.vol_mult;
+  console.log(vol_mult);
 
   let y = 0;
   let hue = 0;

@@ -1,7 +1,6 @@
 let socket = io("/usher");
 // Keep track of users
 let users = {};
-let num = 0;
 
 // Mic status
 let start = false;
@@ -14,12 +13,6 @@ socket.on("connect", () => {
     start = _start;
   });
   socket.emit("get start");
-
-  // Get user count from server
-  socket.on("user count", count => {
-    num = count;
-  });
-  socket.emit("get user count");
 });
 
 function setup() {
