@@ -41,8 +41,10 @@ function getStream(cb) {
             sum += bin / 256;
           }
 
-          //console.log("LEVEL: ", sum / bins.length);
-          if (completed) socket.emit("data", sum / bins.length);
+          if (completed) {
+            sum = audio.enabled ? sum : 0;
+            socket.emit("data",  sum / bins.length);
+          }
         };
 
         // Set-up start status
