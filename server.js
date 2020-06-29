@@ -72,13 +72,12 @@ voices.on("connection", socket => {
   // Listen for data messages from this client
   socket.on("data", data => {
     // Data comes in as whatever was sent, including objects
-    //console.log("Received: 'data' " + data);
+    console.log("Received: 'data' " + data);
     let message = {
       type: "voice",
       id: socket.id,
       data: data
     };
-
     performers.emit("data", data);
     conductors.emit("message", message);
   });
