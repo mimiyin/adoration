@@ -106,9 +106,9 @@ function setup() {
   //   console.log("GOT INPUT STREAM");
   // });
   input = createVideo("https://cysm.s3.amazonaws.com/cyss.mp4");
-  input.loop();
-  input.size(320, 180);
   input.hide();
+  input.size(ics.video.width, ics.video.height);
+  input.loop();
 
   // Set up posenet
   poseNet = ml5.poseNet(input, modelReady);
