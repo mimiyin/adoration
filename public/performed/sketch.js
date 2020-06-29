@@ -23,6 +23,7 @@ let joint = "nose";
 let input, output;
 let curtain;
 let cropped = {};
+let nocrop = {};
 let wc = {};
 let scl = 1;
 let cw, ch;
@@ -58,6 +59,11 @@ let I2O = ocs.video.width / ics.video.width;
 let config;
 let lts = 0;
 
+// Save data
+let history = [];
+let sts = 0;
+let synced = false;
+
 function preload() {
   loadJSON("../config.json", _config => {
     config = _config.config;
@@ -79,12 +85,19 @@ function setup() {
     y: height / 2
   };
 
+  // Calculate no crop
+  nocrop = {
+    x: wc.x,
+    y: wc.y,
+    w: ocs.video.width,
+    h: ocs.video.height
+  }
+
   // Calculate ratios of window dimensions
   H2W = height / width;
 
   // Set up output video
-  output = createVideo("https://cysm.s3.amazonaws.com/cysm-day-1.mp4");
-  output.loop();
+  output = createVideo("https://cysm.s3.amazonaws.com/cyss.mp4");
   output.hide();
 
   // Set up input video
@@ -103,6 +116,7 @@ function setup() {
 
   // Listen for data
   socket.on("data", level => {
+
     //console.log("Data", level);
     let go = false;
     let ts = floor(millis());
@@ -140,6 +154,7 @@ function modelReady() {
 function draw() {
   let unfrozen = !config.a_freeze && !config.m_freeze;
   console.log("UNFROZEN? ", unfrozen);
+
   if (unfrozen) display();
   // Display random dots
   else {
@@ -147,6 +162,17 @@ function draw() {
     fill(255, 16);
     rect(random(width), random(height), 5, 5);
   }
+
+  if (synced) {
+    // Save to file
+    history.push({
+      ts: millis() - sts,
+      ots: output.time() * 1000,
+      crop: unfrozen ? cropped : nocrop
+    });
+  }
+
+  //if (frameCount % 180 == 0) console.log(history[history.length - 1]);
 }
 
 // Found bodies
@@ -218,7 +244,9 @@ function recenter() {
 function display() {
   background('white');
   if (config.crop) image(output, wc.x, wc.y, width, height, cropped.x, cropped.y, cropped.w, cropped.h);
-  else image(output, wc.x, wc.y, width, height);
+  else {
+    image(output, wc.x, wc.y, width, height);
+  }
 }
 
 // Show intro text
@@ -249,7 +277,19 @@ function hideIntro() {
 function showCurtain() {
   select("#curtain").show();
 }
-
+// Draw curtain
 function hideCurtain() {
   select("#curtain").hide();
+}
+
+// Save data
+function keyPressed() {
+  if (keyCode == TAB) {
+    // First time there is data to crop
+    sts = millis();
+    output.play();
+    synced = true;
+    console.log("SYNCED!!! TS DELTA: ", sts);
+  }
+  if (key == ' ') saveJSON(history, 'history.json');
 }
