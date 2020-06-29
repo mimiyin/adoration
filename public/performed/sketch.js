@@ -117,7 +117,7 @@ function setup() {
   // Listen for data
   socket.on("data", level => {
 
-    console.log("Data", level);
+    //console.log("Data", level);
     let go = false;
     let ts = floor(millis());
     if (ts - lts > config.rate) {
