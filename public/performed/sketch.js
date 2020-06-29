@@ -99,11 +99,15 @@ function setup() {
   // Set up output video
   output = createVideo("https://cysm.s3.amazonaws.com/cyss.mp4");
   output.hide();
+  output.loop();
 
   // Set up input video
-  input = createCapture(ics, stream => {
-    console.log("GOT INPUT STREAM");
-  });
+  // input = createCapture(ics, stream => {
+  //   console.log("GOT INPUT STREAM");
+  // });
+  input = createVideo("https://cysm.s3.amazonaws.com/cyss.mp4");
+  input.loop();
+  input.size(320, 180);
   input.hide();
 
   // Set up posenet
@@ -284,12 +288,13 @@ function hideCurtain() {
 
 // Save data
 function keyPressed() {
-  if (keyCode == TAB) {
-    // First time there is data to crop
-    sts = millis();
-    output.play();
-    synced = true;
-    console.log("SYNCED!!! TS DELTA: ", sts);
-  }
-  if (key == ' ') saveJSON(history, 'history.json');
+  // if (keyCode == TAB) {
+  //   // First time there is data to crop
+  //   sts = millis();
+  //   input.loop();
+  //   output.play();
+  //   synced = true;
+  //   console.log("SYNCED!!! TS DELTA: ", sts);
+  // }
+  // if (key == ' ') saveJSON(history, 'history.json');
 }
