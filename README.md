@@ -1,8 +1,9 @@
 Instructions
 =========================
 
-There are 4 sketches:
+There are 5 sketches:
 * /
 * /conductor
 * /voice
 * /performer
+* /performed
