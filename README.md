@@ -1,7 +1,7 @@
 Instructions
 =========================
 
-There are 5 sketches:
+There are 5 sketches total:
 * /
 * /conductor
 * /voice
