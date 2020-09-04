@@ -193,6 +193,7 @@ function keyPressed() {
         config[s] = setting;
       }
       mode = key;
+      toggle(config.start);
       console.log("MODE: ", key, config);
     }
   } catch (e) {
