@@ -261,7 +261,19 @@ function showIntro() {
   lines = selectAll("p");
   for (let l in lines) {
     let line = lines[l];
-    let interval = l < lines.length - 1 ? 3000 : 5000;
+    let interval;
+    switch (l) {
+      case lines.length - 1:
+        interval = 5000;
+        break;
+      case 2:
+         interval = 3500;
+         break;
+      default:
+          interval = 3000;
+          break;
+    }
+
     timeouts.push(setTimeout(() => {
       //line.show();
       line.style("display", "inline");
