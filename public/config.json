@@ -13,7 +13,7 @@
     "a_freeze": false,
     "rate": 100,
     "range": 0.5,
-    "vol_mult": 0.5,
+    "vol_mult": 5,
     "sound": "apollo-talk.mp3"
   },
   "pckeys": [
