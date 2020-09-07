@@ -79,6 +79,16 @@
       "a_freeze": false,
       "mute": true,
       "v_mute": true
+    },
+    {
+      "rate": 100,
+      "range": 0.2,
+      "start" : false,
+      "crop": true,
+      "m_freeze": false,
+      "a_freeze": true,
+      "mute": true,
+      "v_mute": true
     }
   ]
 }

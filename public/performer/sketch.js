@@ -27,8 +27,7 @@ let wc = {};
 let scl = 1;
 let cw, ch;
 
-// Randomize
-let randomize = false;
+// End joint
 let ejoint = "leftEye";
 
 // Video stream constraints
@@ -65,7 +64,7 @@ function preload() {
     // Listening for instructions from conductor
     socket.on("config", _config => {
       config = _config;
-      console.log("CONFIG:", config);
+      //console.log("CONFIG:", config);
     });
   });
 }
@@ -92,12 +91,12 @@ function setup() {
   // Set up input video
   input = createCapture(ics, stream => {
     console.log("GOT INPUT STREAM");
+    // Set up posenet
+    poseNet = ml5.poseNet(input, modelReady);
+    poseNet.on("pose", bodiesTracked);
   });
   input.hide();
 
-  // Set up posenet
-  poseNet = ml5.poseNet(input, modelReady);
-  poseNet.on("pose", bodiesTracked);
 
   // Center the image
   imageMode(CENTER);
@@ -123,8 +122,7 @@ function setup() {
 
   // Listen for finale
   socket.on("end", end => {
-    randomize = !end;
-    update(1);
+    update(config.range);
   });
 
   // Listen for end
@@ -143,7 +141,7 @@ function modelReady() {
 
 function draw() {
   let unfrozen = !config.a_freeze && !config.m_freeze;
-  console.log("UNFROZEN? ", unfrozen);
+  //console.log("UNFROZEN? ", unfrozen);
   if (unfrozen) display();
   // Display random dots
   else {
@@ -151,6 +149,10 @@ function draw() {
     fill(255, 16);
     rect(random(width), random(height), 5, 5);
   }
+  // image(output, width/2, height/2);
+  // fill('pink');
+  // ellipse(cropped.x, cropped.y, 50, 50);
+
 }
 
 // Found bodies
@@ -176,9 +178,9 @@ function resize() {
 
 function update(level) {
   try {
-    // Randomize
-    if (randomize) joint = body[random(joints)];
-    else joint = body[ejoint];
+    // Eye or Randomize
+    let j = ejoint; //config.end ? ejoint : random(joints);
+    joint =  body[j];
 
     // Constrain the level
     level = constrain(level, 0, config.range);
@@ -190,6 +192,7 @@ function update(level) {
     // Update mid-point
     cropped.x = joint.x * I2O;
     cropped.y = joint.y * I2O;
+
     recenter();
   } catch (e) {
     console.log("No body.");

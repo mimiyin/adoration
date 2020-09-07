@@ -183,22 +183,32 @@ function draw() {
   }
 }
 
-function keyPressed() {
+// Set the mode
+function setMode(m) {
   // Mode change?
   try {
-    let settings = modes[key];
+    let settings = modes[m];
     if (settings) {
       for (let s in settings) {
         let setting = settings[s];
         config[s] = setting;
       }
-      mode = key;
+      mode = m;
+      // Update the start status everywhere
       toggle(config.start);
-      console.log("MODE: ", key, config);
+      console.log("MODE: ", m, config.start);
     }
   } catch (e) {
     console.log("Was not a mode change.");
   }
+}
+
+function keyPressed() {
+  // Emit status for special emits
+  let emitIntro = false;
+  let emitEnd = false;
+
+  setMode(key);
 
   switch (key) {
     case " ":
@@ -239,15 +249,13 @@ function keyPressed() {
       break;
     case "i":
       config.intro = !config.intro;
-      socket.emit("intro", config.intro);
+      emitIntro = true;
       break;
     case "e":
       config.end = !config.end;
-      socket.emit("end", config.end);
-      // Toggle start
-      toggle(false);
-      config.m_freeze = false;
-      config.a_freeze = true;
+      // Go back to normal
+      setMode(config.end ? 6 : 0);
+      emitEnd = true;
       break;
   }
 
@@ -279,6 +287,8 @@ function keyPressed() {
 
   // emit the config updates
   emit();
+  if(emitIntro) socket.emit("intro", config.intro);
+  if(emitEnd) socket.emit("end", config.end);
 
   // Update the status
   status();
@@ -296,8 +306,8 @@ function emit(mode) {
 
 function toggle(state) {
   // Toggle recording
-  if (state) config.start = state;
-  else config.start = !config.start;
+  if (state == undefined) config.start = !config.start;
+  else config.start = state;
   console.log("START", config.start);
 
   // Tell everyone
