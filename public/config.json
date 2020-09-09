@@ -68,7 +68,8 @@
       "m_freeze": false,
       "a_freeze": true,
       "mute" : true,
-      "v_mute": true
+      "v_mute": true,
+      "a_mute": true
     },
     {
       "rate": 100,
@@ -77,8 +78,9 @@
       "crop": true,
       "m_freeze": false,
       "a_freeze": false,
-      "mute": true,
-      "v_mute": true
+      "mute": false,
+      "v_mute": false,
+      "a_mute": false
     },
     {
       "rate": 100,
@@ -88,7 +90,8 @@
       "m_freeze": false,
       "a_freeze": true,
       "mute": true,
-      "v_mute": true
+      "v_mute": true,
+      "a_mute": true
     }
   ]
 }
