@@ -94,7 +94,6 @@ function setup() {
   });
   input.hide();
   input.size(ics.video.width, ics.video.height);
-  input.loop();
 
   // Center the image
   imageMode(CENTER);
@@ -257,4 +256,8 @@ function showCurtain() {
 
 function hideCurtain() {
   select("#curtain").hide();
+}
+
+function keyPressed(){
+  input.play();
 }
