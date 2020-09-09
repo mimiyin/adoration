@@ -1,3 +1,4 @@
+
 // Set up sockets
 let socket = io("/performer");
 socket.on("connect", () => {
@@ -23,20 +24,18 @@ let joint = "nose";
 let input, output;
 let curtain;
 let cropped = {};
-let nocrop = {};
 let wc = {};
 let scl = 1;
 let cw, ch;
 
-// Randomize
-let randomize = false;
+// End joint
 let ejoint = "leftEye";
 
 // Video stream constraints
 let ocs = {
   video: {
-    width: 1920,
-    height: 1080
+    width: 1280,
+    height: 720
   },
   audio: false
 };
@@ -59,11 +58,6 @@ let I2O = ocs.video.width / ics.video.width;
 let config;
 let lts = 0;
 
-// Save data
-let history = [];
-let sts = 0;
-let synced = false;
-
 function preload() {
   loadJSON("../config.json", _config => {
     config = _config.config;
@@ -71,7 +65,7 @@ function preload() {
     // Listening for instructions from conductor
     socket.on("config", _config => {
       config = _config;
-      console.log("CONFIG:", config);
+      //console.log("CONFIG:", config);
     });
   });
 }
@@ -85,34 +79,22 @@ function setup() {
     y: height / 2
   };
 
-  // Calculate no crop
-  nocrop = {
-    x: wc.x,
-    y: wc.y,
-    w: ocs.video.width,
-    h: ocs.video.height
-  }
-
   // Calculate ratios of window dimensions
   H2W = height / width;
 
   // Set up output video
   output = createVideo("https://cysm.s3.amazonaws.com/cyss.mp4");
   output.hide();
-  output.loop();
 
   // Set up input video
-  // input = createCapture(ics, stream => {
-  //   console.log("GOT INPUT STREAM");
-  // });
-  input = createVideo("https://cysm.s3.amazonaws.com/cyss.mp4");
+  input = createVideo("https://cysm.s3.amazonaws.com/cyss.mp4", () => {
+    console.log("GOT INPUT STREAM");
+    // Set up posenet
+    poseNet = ml5.poseNet(input, modelReady);
+    poseNet.on("pose", bodiesTracked);
+  });
   input.hide();
-  input.size(ics.video.width, ics.video.height);
-  input.loop();
 
-  // Set up posenet
-  poseNet = ml5.poseNet(input, modelReady);
-  poseNet.on("pose", bodiesTracked);
 
   // Center the image
   imageMode(CENTER);
@@ -120,7 +102,6 @@ function setup() {
 
   // Listen for data
   socket.on("data", level => {
-
     //console.log("Data", level);
     let go = false;
     let ts = floor(millis());
@@ -139,8 +120,7 @@ function setup() {
 
   // Listen for finale
   socket.on("end", end => {
-    randomize = !end;
-    update(1);
+    update(config.range);
   });
 
   // Listen for end
@@ -149,6 +129,8 @@ function setup() {
     else hideCurtain();
   });
 
+  // No cursor
+  noCursor();
 }
 
 function modelReady() {
@@ -157,8 +139,7 @@ function modelReady() {
 
 function draw() {
   let unfrozen = !config.a_freeze && !config.m_freeze;
-  console.log("UNFROZEN? ", unfrozen);
-
+  //console.log("UNFROZEN? ", unfrozen);
   if (unfrozen) display();
   // Display random dots
   else {
@@ -166,17 +147,10 @@ function draw() {
     fill(255, 16);
     rect(random(width), random(height), 5, 5);
   }
+  // image(output, width/2, height/2);
+  // fill('pink');
+  // ellipse(cropped.x, cropped.y, 50, 50);
 
-  if (synced) {
-    // Save to file
-    history.push({
-      ts: millis() - sts,
-      ots: output.time() * 1000,
-      crop: unfrozen ? cropped : nocrop
-    });
-  }
-
-  //if (frameCount % 180 == 0) console.log(history[history.length - 1]);
 }
 
 // Found bodies
@@ -202,9 +176,9 @@ function resize() {
 
 function update(level) {
   try {
-    // Randomize
-    if (randomize) joint = body[random(joints)];
-    else joint = body[ejoint];
+    // Eye or Randomize
+    let j = ejoint; //config.end ? ejoint : random(joints);
+    joint =  body[j];
 
     // Constrain the level
     level = constrain(level, 0, config.range);
@@ -216,6 +190,7 @@ function update(level) {
     // Update mid-point
     cropped.x = joint.x * I2O;
     cropped.y = joint.y * I2O;
+
     recenter();
   } catch (e) {
     console.log("No body.");
@@ -248,9 +223,7 @@ function recenter() {
 function display() {
   background('white');
   if (config.crop) image(output, wc.x, wc.y, width, height, cropped.x, cropped.y, cropped.w, cropped.h);
-  else {
-    image(output, wc.x, wc.y, width, height);
-  }
+  else image(output, wc.x, wc.y, width, height);
 }
 
 // Show intro text
@@ -261,19 +234,7 @@ function showIntro() {
   lines = selectAll("p");
   for (let l in lines) {
     let line = lines[l];
-    let interval;
-    switch (l) {
-      case lines.length - 1:
-        interval = 5000;
-        break;
-      case 2:
-         interval = 3500;
-         break;
-      default:
-          interval = 3000;
-          break;
-    }
-
+    let interval = l < lines.length - 1 ? 3000 : 5000;
     timeouts.push(setTimeout(() => {
       //line.show();
       line.style("display", "inline");
@@ -293,20 +254,7 @@ function hideIntro() {
 function showCurtain() {
   select("#curtain").show();
 }
-// Draw curtain
+
 function hideCurtain() {
   select("#curtain").hide();
-}
-
-// Save data
-function keyPressed() {
-  // if (keyCode == TAB) {
-  //   // First time there is data to crop
-  //   sts = millis();
-  //   input.loop();
-  //   output.play();
-  //   synced = true;
-  //   console.log("SYNCED!!! TS DELTA: ", sts);
-  // }
-  // if (key == ' ') saveJSON(history, 'history.json');
 }
