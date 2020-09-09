@@ -260,6 +260,7 @@ function hideCurtain() {
 
 function keyPressed(){
   input.play();
+  input.volume(0);
   output.play();
   console.log("HELLO");
 }
