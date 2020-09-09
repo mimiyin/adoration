@@ -1,4 +1,3 @@
-
 // Set up sockets
 let socket = io("/performer");
 socket.on("connect", () => {
@@ -94,7 +93,8 @@ function setup() {
     poseNet.on("pose", bodiesTracked);
   });
   input.hide();
-
+  input.size(ics.video.width, ics.video.height);
+  input.loop();
 
   // Center the image
   imageMode(CENTER);
@@ -178,7 +178,7 @@ function update(level) {
   try {
     // Eye or Randomize
     let j = ejoint; //config.end ? ejoint : random(joints);
-    joint =  body[j];
+    joint = body[j];
 
     // Constrain the level
     level = constrain(level, 0, config.range);
