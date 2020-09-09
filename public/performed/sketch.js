@@ -260,4 +260,5 @@ function hideCurtain() {
 
 function keyPressed(){
   input.play();
+  console.log("HELLO");
 }
