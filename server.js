@@ -49,6 +49,9 @@ let voices = io.of("/voice");
 // Conductor
 let conductors = io.of("/conductor");
 
+// NiNi test
+let ninis = io.of("/nini");
+
 // Listen for output clients to connect
 performers.on("connection", socket => {
   console.log("A performer client connected: " + socket.id);
@@ -56,6 +59,49 @@ performers.on("connection", socket => {
   // Listen for this output client to disconnect
   socket.on("disconnect", () => {
     console.log("A performer client has disconnected " + socket.id);
+  });
+});
+
+// Listen for nini clients to connect
+ninis.on("connection", socket => {
+  console.log("A voice client connected: " + socket.id);
+
+  // Set the performer sketch up
+  let config = {
+    "max" : 100,
+    "mute": true,
+    "v_mute" : true,
+    "a_mute": true,
+    "intro": false,
+    "end": false,
+    "curtain" : false,
+    "start": true,
+    "crop": true,
+    "m_freeze": false,
+    "a_freeze": false,
+    "rate": 50,
+    "range": 0.5,
+    "vol_mult": 5,
+    "sound": "apollo-talk.mp3"
+  }
+
+  performers.emit("config", config);
+
+  // Listen for data messages from this client
+  socket.on("data", data => {
+    // Data comes in as whatever was sent, including objects
+    //console.log("Received: 'data' " + data);
+    let message = {
+      type: "voice",
+      id: socket.id,
+      data: data
+    };
+    performers.emit("data", data);
+  });
+
+  // Listen for this output client to disconnect
+  socket.on("disconnect", () => {
+    console.log("A voice client has disconnected " + socket.id);
   });
 });
 
