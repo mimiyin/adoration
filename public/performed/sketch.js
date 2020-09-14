@@ -82,11 +82,11 @@ function setup() {
   H2W = height / width;
 
   // Set up output video
-  output = createVideo("https://cysm.s3.amazonaws.com/cysm-day-1.mp4");
+  output = createVideo("https://cysm.s3.amazonaws.com/cyss.mp4");
   output.hide();
 
   // Set up input video
-  input = createVideo("https://cysm.s3.amazonaws.com/cysm-day-1.mp4", () => {
+  input = createVideo("https://cysm.s3.amazonaws.com/cyss.mp4", () => {
     console.log("GOT INPUT STREAM");
     // Set up posenet
     poseNet = ml5.poseNet(input, modelReady);
