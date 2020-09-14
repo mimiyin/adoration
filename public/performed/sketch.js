@@ -274,7 +274,7 @@ function keyPressed() {
       input.pause();
       output.pause();
     }
-  } else if (keyCode == TAB) {
+  } else if (keyCode == ESCAPE) {
     mute = !mute;
     output.volume(mute ? 0 : 1);
   }
