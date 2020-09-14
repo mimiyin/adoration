@@ -257,10 +257,22 @@ function showCurtain() {
 function hideCurtain() {
   select("#curtain").hide();
 }
+let play = false;
+let mute = false;
 
-function keyPressed(){
-  input.play();
-  input.volume(0);
-  output.play();
-  console.log("HELLO");
+function keyPressed() {
+  if (key == 32) {
+    play = !play;
+    if (play) {
+      input.play();
+      input.volume(0);
+      output.play();
+    } else {
+      input.pause();
+      output.pause();
+    }
+  } else if (keyCode == TAB) {
+    mute = !mute;
+    output.volume(mute ? 0 : 1);
+  }
 }
