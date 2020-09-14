@@ -257,11 +257,14 @@ function showCurtain() {
 function hideCurtain() {
   select("#curtain").hide();
 }
+
+// Controlling playing and muting
 let play = false;
 let mute = false;
 
 function keyPressed() {
-  if (key == 32) {
+  if (key == ' ') {
+    console.log("PLAY", play);
     play = !play;
     if (play) {
       input.play();
