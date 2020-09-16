@@ -19,8 +19,9 @@ function createUser(message) {
   // Get id and data from message
   let type = message.type;
   let id = message.id;
-  let data = message.data;
-
+  
+  // Ignore white noise
+  let data = message.data < 0.025 ? 0 : message.data;
   // Callback when sound sucessfully loads
   function cueSound(sound) {
     sound.setVolume(data * config.vol_mult);
