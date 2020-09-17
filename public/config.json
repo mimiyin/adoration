@@ -61,7 +61,7 @@
       "v_mute": false
     },
     {
-      "rate": 2000,
+      "rate": 3000,
       "range": 0.5,
       "start" : true,
       "crop": true,
