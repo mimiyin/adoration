@@ -1,4 +1,4 @@
-// Set up sockets
+// Set up sockets, HI
 let socket = io("/performer");
 socket.on("connect", () => {
   console.log("Connected");
@@ -41,8 +41,8 @@ let ocs = {
 
 let ics = {
   video: {
-    width: 320,
-    height: 180
+    width: 1920,
+    height: 1080
   },
   audio: false
 };
@@ -83,6 +83,7 @@ function setup() {
 
   // Set up output video
   output = createVideo("https://cysm.s3.amazonaws.com/cyss.mp4");
+  //output = createVideo("./cyss.mp4");
   output.hide();
 
   // Set up input video
@@ -91,6 +92,7 @@ function setup() {
     // Set up posenet
     poseNet = ml5.poseNet(input, modelReady);
     poseNet.on("pose", bodiesTracked);
+
   });
   input.hide();
   input.size(ics.video.width, ics.video.height);
@@ -187,8 +189,8 @@ function update(level) {
     resize();
 
     // Update mid-point
-    cropped.x = joint.x * I2O;
-    cropped.y = joint.y * I2O;
+    cropped.x = joint.x; // * I2O;
+    cropped.y = joint.y; // * I2O;
 
     recenter();
   } catch (e) {
