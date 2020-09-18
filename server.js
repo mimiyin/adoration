@@ -251,11 +251,8 @@ audience.on("connection", socket => {
 ushers.on("connection", socket => {
   console.log("An usher client connected: " + socket.id);
 
-  // Give start status
-  socket.on("get start", () => {
-    // Sent recording status
-    socket.emit('start', astart);
-  });
+  // Send recording status
+  socket.emit('start', astart);
 
   // Pass on request to record
   socket.on("start", start => {
@@ -282,5 +279,6 @@ function updateAudienceCount() {
   for (let s in audienceSockets) console.log(s);
   console.log("Audience Count:", count);
   conductors.emit("user count", count);
+  ushers.emit("user count", count);
   return count;
 }

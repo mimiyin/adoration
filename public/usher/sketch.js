@@ -12,7 +12,11 @@ socket.on("connect", () => {
     console.log("START", start);
     start = _start;
   });
-  socket.emit("get start");
+
+  // Get user count
+  socket.on("user count", count => {
+    console.log("NUM: ", count);
+  });
 });
 
 function setup() {
