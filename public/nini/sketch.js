@@ -26,6 +26,9 @@ function setup() {
 }
 
 function draw() {
+  // Send random data
+  socket.emit('data', random(1));
+  
   // Wipe out the background every 10 seconds
   if(frameCount%60*30 == 0) background(0);
 

@@ -42,8 +42,9 @@ function getStream(cb) {
           }
 
           if (completed) {
-            sum = audio.enabled ? sum : 0;
-            socket.emit("data",  sum / bins.length);
+            sum = audio.enabled ? sum / bins.length : 0;
+            sum = nfs(sum, 0, 3);
+            socket.emit("data",  sum);
           }
         };
 
