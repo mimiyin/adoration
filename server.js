@@ -189,8 +189,6 @@ conductors.on("connection", socket => {
   });
 });
 
-// Keep track of audience connection attempts
-let anum = 0;
 // Keep track of max audience connections
 let AMAX = 50;
 
@@ -209,8 +207,10 @@ audience.on("connection", socket => {
     updateAudienceCount();
   });
 
+  let audienceSockets = audience.sockets;
+  let count = Object.keys(audienceSockets).length;
   // Disconnect the socket if we've reached the max
-  if(anum > AMAX) socket.disconnect();
+  if(count > AMAX) socket.disconnect();
 
   // Failed to turn on mic
   socket.on("no mic", () => {

@@ -4,8 +4,8 @@
 open "http://nuum.nuum.co/conductor"
 open "http://nuum.nuum.co/usher"
 
-for i in {0..10}
+for i in {0..20}
 do
-  open -na "Google Chrome" --args --new-window "http://nuum.nuum.co"
+  open -na "Firefox" --args --new-window "http://nuum.nuum.co"
 done
 exit 0
