@@ -190,7 +190,7 @@ conductors.on("connection", socket => {
 });
 
 // Keep track of max audience connections
-let AMAX = 50;
+let AMAX = 20;
 
 // Listen for audience clients to connect
 audience.on("connection", socket => {
@@ -204,8 +204,8 @@ audience.on("connection", socket => {
     updateAudienceCount();
   });
 
-  let audienceSockets = audience.sockets;
-  let count = Object.keys(audienceSockets).length;
+  // Get audience count
+  let count = updateAudienceCount();
   // Disconnect the socket if we've reached the max
   if(count > AMAX) socket.disconnect();
 
@@ -282,4 +282,5 @@ function updateAudienceCount() {
   for (let s in audienceSockets) console.log(s);
   console.log("Audience Count:", count);
   conductors.emit("user count", count);
+  return count;
 }

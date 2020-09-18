@@ -1,6 +1,6 @@
 {
   "config": {
-    "max" : 100,
+    "max" : 10,
     "mute": true,
     "v_mute" : true,
     "a_mute": true,
