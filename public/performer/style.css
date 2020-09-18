@@ -8,12 +8,12 @@ canvas {
 }
 
 #intro {
-  /* position: absolute; */
+  position: absolute;
   padding: 0 0 0 20px;
   top: 0px;
   left: 0px;
   z-index: 5;
-  font-size: 5em;
+  font-size: 6em;
   /* width: 1240px;
   height: 720px; */
   font-family: sans-serif;
