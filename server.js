@@ -189,9 +189,28 @@ conductors.on("connection", socket => {
   });
 });
 
+// Keep track of audience connection attempts
+let anum = 0;
+// Keep track of max audience connections
+let AMAX = 50;
+
 // Listen for audience clients to connect
 audience.on("connection", socket => {
   console.log("An audience client connected: " + socket.id);
+
+  // Increment number of audience that have tried to connect
+  anum++;
+
+  // Listen for this audience client to disconnect
+  // Tell all of the output clients this client disconnected
+  socket.on("disconnect", () => {
+    console.log("An audience client has disconnected " + socket.id);
+    conductors.emit("disconnected", socket.id);
+    updateAudienceCount();
+  });
+
+  // Disconnect the socket if we've reached the max
+  if(anum > AMAX) socket.disconnect();
 
   // Failed to turn on mic
   socket.on("no mic", () => {
@@ -228,14 +247,6 @@ audience.on("connection", socket => {
     // setTimeout(()=>{
     //   conductors.emit("message", message);
     // }, 20 * 1000);
-  });
-
-  // Listen for this audience client to disconnect
-  // Tell all of the output clients this client disconnected
-  socket.on("disconnect", () => {
-    console.log("An audience client has disconnected " + socket.id);
-    conductors.emit("disconnected", socket.id);
-    updateAudienceCount();
   });
 });
 

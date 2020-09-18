@@ -1,11 +1,11 @@
 #!/bin/bash
 # Setting up conductor
 #npm start
-open "http://localhost:8000/conductor"
-open "http://localhost:8000/usher"
+open "http://nuum.nuum.co/conductor"
+open "http://nuum.nuum.co/usher"
 
-for i in {0..15}
+for i in {0..10}
 do
-  open -na "Google Chrome" --args --new-window "http://localhost:8000"
+  open -na "Google Chrome" --args --new-window "http://nuum.nuum.co"
 done
 exit 0

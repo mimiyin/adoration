@@ -10,12 +10,21 @@ let tts = 0;
 // Intro text
 let intro;
 
+// Disconnected audience member
+let disconnected = false;
+
 // Listen for confirmation of connection
 socket.on("connect", () => {
   console.log("Connected");
 
   // Log in with the usher
   socket.emit('data', 0);
+});
+
+// Listen for confirmation of connection
+socket.on("disconnect", () => {
+  console.log("Disconnected");
+  disconnected = true;
 });
 
 function setup() {
@@ -77,4 +86,9 @@ function draw() {
   fill(255, 2);
   noStroke();
   ellipse(random(width), random(height), sz, sz);
+
+  // Fake it if you're disconnected
+  if(completed && disconnected) {
+    background(0, 5);
+  }
 }
