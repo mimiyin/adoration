@@ -19,7 +19,7 @@ function createUser(message) {
   // Get id and data from message
   let type = message.type;
   let id = message.id;
-  
+
   // Ignore white noise
   let data = message.data < 0.025 ? 0 : message.data;
   // Callback when sound sucessfully loads
@@ -33,8 +33,8 @@ function createUser(message) {
 
   // If new user
   if (!(id in users)) {
-    // Max out at 100
-    if (num >= config.max) return;
+    // Max out at 10
+    if (Object.keys(users).length >= config.max) return;
 
     // Get user count
     socket.emit('get user count');

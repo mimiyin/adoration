@@ -1,11 +1,11 @@
 #!/bin/bash
 # Setting up conductor
 #npm start
-open "http://nuum.nuum.co/conductor"
-open "http://nuum.nuum.co/usher"
+open "http://respond.nuum.co/conductor"
+open "http://respond.nuum.co/usher"
 
-for i in {0..20}
+for i in {0..12}
 do
-  open -na "Firefox" --args --new-window "http://nuum.nuum.co"
+  open -na "Firefox" --args --new-window "http://respond.nuum.co"
 done
 exit 0
