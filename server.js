@@ -196,9 +196,6 @@ let AMAX = 50;
 audience.on("connection", socket => {
   console.log("An audience client connected: " + socket.id);
 
-  // Increment number of audience that have tried to connect
-  anum++;
-
   // Listen for this audience client to disconnect
   // Tell all of the output clients this client disconnected
   socket.on("disconnect", () => {
